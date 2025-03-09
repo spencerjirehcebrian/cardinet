@@ -1,0 +1,140 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  username      String   @unique
+  email         String   @unique
+  passwordHash  String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  posts             Post[]
+  comments          Comment[]
+  votes             Vote[]
+  communities       CommunitiesOnUsers[]
+  ownedCommunities  Community[]          @relation("CommunityOwner")
+  
+  // Friendship relations
+  friendsAdded      Friendship[]         @relation("UserFriends")
+  friendsOf         Friendship[]         @relation("FriendOf")
+}
+
+model Friendship {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  
+  // Define the relationship between users
+  userId    String
+  friendId  String
+  
+  // Relations with User model
+  user      User     @relation("UserFriends", fields: [userId], references: [id], onDelete: Cascade)
+  friend    User     @relation("FriendOf", fields: [friendId], references: [id], onDelete: Cascade)
+  
+  // Make sure each friendship only exists once
+  @@unique([userId, friendId])
+}
+
+model Community {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Owner relation
+  ownerId     String
+  owner       User     @relation("CommunityOwner", fields: [ownerId], references: [id])
+  
+  // Relations
+  posts       Post[]
+  members     CommunitiesOnUsers[]
+}
+
+model CommunitiesOnUsers {
+  communityId String
+  userId      String
+  joinedAt    DateTime @default(now())
+  
+  // Relations
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Composite primary key
+  @@id([communityId, userId])
+}
+
+model Post {
+  id          String   @id @default(cuid())
+  title       String
+  content     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Author relation
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id])
+  
+  // Community relation
+  communityId String
+  community   Community @relation(fields: [communityId], references: [id])
+  
+  // Relations
+  comments    Comment[]
+  votes       Vote[]
+}
+
+model Comment {
+  id          String   @id @default(cuid())
+  content     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Author relation
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id])
+  
+  // Post relation
+  postId      String
+  post        Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  // Parent comment (for nested comments)
+  parentId    String?
+  parent      Comment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: SetNull)
+  replies     Comment[] @relation("CommentReplies")
+  
+  // Relations
+  votes       Vote[]
+}
+
+model Vote {
+  id          String   @id @default(cuid())
+  value       Int      // 1 for upvote, -1 for downvote
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // User relation
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  
+  // Post or Comment relation (one or the other, not both)
+  postId      String?
+  post        Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  commentId   String?
+  comment     Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  
+  // Ensure a user can only vote once on a post/comment
+  @@unique([userId, postId])
+  @@unique([userId, commentId])
+}

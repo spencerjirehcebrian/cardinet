@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  reddit-clone:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      # Mount source code for development
+      - ./src:/app/src
+      - ./public:/app/public
+      # Mount database file
+      - ./prisma/data:/app/prisma/data
+      # Don't overwrite node_modules with potentially incompatible host files
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=file:/app/prisma/data/reddit-clone.db
+    command: npm run dev
