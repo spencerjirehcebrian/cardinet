@@ -8,16 +8,13 @@ export default async function Home() {
     <div>
       {/* Home welcome card */}
       <div className="bg-white rounded-md shadow-sm p-4 mb-6">
-        <h2 className="text-lg font-semibold mb-3">Home</h2>
-        <p className="text-gray-600 mb-4">
-          Your personal CardiNet frontpage. Come here to check in with your
-          favorite groups.
-        </p>
+        <h2 className="text-lg font-semibold mb-3">News Feed</h2>
+
         <Button
           href="/create/post"
-          fullWidth
           variant="primary"
           icon={<FaPlus />}
+          className="w-fit"
         >
           Create Post
         </Button>

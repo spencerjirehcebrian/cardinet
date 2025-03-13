@@ -5,6 +5,7 @@ import Link from "next/link";
 import PostItem from "@/components/post/PostItem";
 import { useAuth } from "@/components/auth/AuthContext";
 import { FaSpinner, FaUserFriends, FaPlus } from "react-icons/fa";
+import Button from "../ui/Button";
 
 export default function FriendsPosts() {
   const { user, isAuthenticated } = useAuth();
@@ -107,12 +108,9 @@ export default function FriendsPosts() {
         <p className="text-gray-600 mb-4">
           You need to be logged in to view posts from your friends.
         </p>
-        <Link
-          href="/auth/login"
-          className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600"
-        >
+        <Button variant="primary" href="/auth/login">
           Log In
-        </Link>
+        </Button>
       </div>
     );
   }
