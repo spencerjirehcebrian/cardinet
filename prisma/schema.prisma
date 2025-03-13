@@ -11,12 +11,15 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  username     String   @unique
-  email        String   @unique
+  id           String    @id @default(cuid())
+  username     String    @unique
+  email        String    @unique
   passwordHash String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  birthday     DateTime?
+  phoneNumber  String?
+  profileImage Bytes?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   // Relations
   posts       Post[]
@@ -50,6 +53,7 @@ model Group {
   id          String   @id @default(cuid())
   name        String   @unique
   description String?
+  groupImage  Bytes?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

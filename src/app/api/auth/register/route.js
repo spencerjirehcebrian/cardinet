@@ -5,8 +5,19 @@ import { z } from "zod";
 // Define validation schema
 const registerSchema = z.object({
   username: z.string().min(3).max(50),
-  email: z.string().email(),
+  email: z
+    .string()
+    .email()
+    .refine((email) => email.endsWith("@mymail.mapua.edu.ph"), {
+      message:
+        "Email must be a valid Mapua school email (@mymail.mapua.edu.ph)",
+    }),
   password: z.string().min(8),
+  birthday: z
+    .string()
+    .optional()
+    .transform((val) => (val ? new Date(val) : undefined)),
+  phoneNumber: z.string().optional(),
 });
 
 export async function POST(request) {

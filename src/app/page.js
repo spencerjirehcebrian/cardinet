@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { FaReddit, FaPlus } from "react-icons/fa";
+import { FaHome, FaPlus } from "react-icons/fa";
 import PostList from "@/components/post/PostList";
 import Button from "@/components/ui/Button";
 
@@ -8,7 +7,10 @@ export default async function Home() {
     <div>
       {/* Home welcome card */}
       <div className="bg-white rounded-md shadow-sm p-4 mb-6">
-        <h2 className="text-lg font-semibold mb-3">News Feed</h2>
+        <h2 className="text-lg font-semibold mb-3">
+          <FaHome className="inline-block mr-2 text-yellow-500" />
+          News Feed
+        </h2>
 
         <Button
           href="/create/post"

@@ -38,17 +38,6 @@ export default function GroupAbout({ group }) {
           Created {formatDate(group.createdAt)}
         </p>
       </div>
-
-      <div className="mt-4">
-        <Button
-          href={`/create/post`}
-          fullWidth
-          variant="primary"
-          icon={<FaPlus />}
-        >
-          Create Post
-        </Button>
-      </div>
     </div>
   );
 }

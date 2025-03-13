@@ -6,8 +6,12 @@ import Image from "next/image";
 import { useAuth } from "@/components/auth/AuthContext";
 import { generateGroupColor } from "@/lib/utils";
 import Button from "@/components/ui/Button";
-
-export default function GroupHeader({ group }) {
+import GroupImageUpload from "@/components/group/GroupImageUpload";
+export default function GroupHeader({
+  group,
+  activeTab = "posts",
+  onTabChange,
+}) {
   const { user } = useAuth();
   const [isJoined, setIsJoined] = useState(false);
   const [memberCount, setMemberCount] = useState(group._count.members);
@@ -45,6 +49,12 @@ export default function GroupHeader({ group }) {
     }
   };
 
+  const handleTabClick = (tab) => {
+    if (onTabChange) {
+      onTabChange(tab);
+    }
+  };
+
   return (
     <div>
       {/* Banner */}
@@ -56,18 +66,12 @@ export default function GroupHeader({ group }) {
       <div className="bg-white shadow-sm px-4 pb-3">
         <div className="flex items-start">
           {/* Group icon */}
-          <div
-            className={`-mt-4 w-16 h-16 rounded-full border-4 border-white ${generateGroupColor(
-              group.name
-            )} flex items-center justify-center`}
-          >
-            {/* Replace FaReddit with your custom logo icon */}
-            <Image
-              src="/logo-icon.png"
-              alt="Group"
-              width={32}
-              height={32}
-              className="text-white text-3xl"
+          <div className="-mt-4">
+            <GroupImageUpload
+              group={group}
+              onImageUpdated={() => {
+                // Optional: handle refresh or notification
+              }}
             />
           </div>
 
@@ -79,7 +83,7 @@ export default function GroupHeader({ group }) {
                   {memberCount} {memberCount === 1 ? "member" : "members"} •
                   Created by{" "}
                   <Link
-                    href={`/${group.owner.username}`}
+                    href={`/user/${group.owner.username}`}
                     className="hover:underline"
                   >
                     {group.owner.username}
@@ -100,13 +104,24 @@ export default function GroupHeader({ group }) {
 
         {/* Navigation tabs */}
         <div className="flex space-x-4 mt-4 border-b border-gray-200">
-          <Link
-            href={`/group/${group.name}`}
-            className="px-3 py-2 text-gray-800 border-b-2 border-blue-500 font-medium"
+          <button
+            onClick={() => handleTabClick("posts")}
+            className={`px-3 py-2 ${
+              activeTab === "posts"
+                ? "text-gray-800 border-b-2 border-blue-500 font-medium"
+                : "text-gray-500 hover:bg-gray-100 rounded-t-md"
+            }`}
           >
             Posts
-          </Link>
-          <button className="px-3 py-2 text-gray-500 hover:bg-gray-100 rounded-t-md">
+          </button>
+          <button
+            onClick={() => handleTabClick("about")}
+            className={`px-3 py-2 ${
+              activeTab === "about"
+                ? "text-gray-800 border-b-2 border-blue-500 font-medium"
+                : "text-gray-500 hover:bg-gray-100 rounded-t-md"
+            }`}
+          >
             About
           </button>
         </div>

@@ -2,8 +2,8 @@
 
 :root {
   --foreground-rgb: 0, 0, 0;
-  --background-rgb: 124, 15, 15;
-  --accent-rgb: 249, 221, 66;
+  --background-rgb: 127, 29, 29; /* Tailwind red-900 */
+  --accent-rgb: 245, 158, 11; /* Tailwind yellow-500 */
 }
 
 body {

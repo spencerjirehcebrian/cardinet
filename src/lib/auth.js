@@ -1,7 +1,13 @@
 import { hash, compare } from "bcryptjs";
 import prisma from "./db";
 
-export async function createUser({ username, email, password }) {
+export async function createUser({
+  username,
+  email,
+  password,
+  birthday,
+  phoneNumber,
+}) {
   // Check if username or email already exists
   const existingUser = await prisma.user.findFirst({
     where: {
@@ -27,6 +33,8 @@ export async function createUser({ username, email, password }) {
       username,
       email,
       passwordHash,
+      birthday,
+      phoneNumber,
     },
   });
 
@@ -65,6 +73,8 @@ export async function getUserById(id) {
       id: true,
       username: true,
       email: true,
+      birthday: true,
+      phoneNumber: true,
       createdAt: true,
       posts: {
         select: {
@@ -95,6 +105,8 @@ export async function getUserByUsername(username) {
     select: {
       id: true,
       username: true,
+      birthday: true,
+      phoneNumber: true,
       createdAt: true,
       posts: {
         select: {

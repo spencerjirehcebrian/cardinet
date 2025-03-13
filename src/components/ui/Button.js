@@ -26,7 +26,7 @@ const Button = forwardRef(
     // Define variant styles
     const variantStyles = {
       primary:
-        "bg-yellow-500 text-black hover:bg-yellow-400 hover:text-black hover:shadow-sm",
+        "bg-gradient-to-r from-yellow-500 to-yellow-300 text-black hover:from-yellow-400 hover:to-yellow-300 hover:text-black hover:shadow-md transition-all duration-300 ease-in-out",
       secondary: "bg-gray-200 text-gray-800 hover:bg-gray-300",
       outlined:
         "border border-yellow-500 text-yellow-500 hover:bg-yellow-300 hover:text-black",
@@ -34,6 +34,7 @@ const Button = forwardRef(
       success: "bg-green-500 text-white hover:bg-green-600",
       ghost: "text-gray-700 hover:bg-gray-100",
       link: "text-blue-500 hover:underline p-0",
+      auth: "bg-gradient-to-r from-red-900 to-red-700 text-white rounded-full py-4 px-8 hover:shadow-lg transition-all duration-300 hover:from-red-700 hover:to-red-500",
     };
 
     // Define size styles

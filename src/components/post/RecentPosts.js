@@ -85,9 +85,6 @@ export default function RecentPosts() {
           <FaCompass className="text-blue-500 text-xl mr-2" />
           <h2 className="text-lg font-semibold">Explore Recent Posts</h2>
         </div>
-        <p className="text-gray-600 text-sm mt-1">
-          Discover the latest posts from all groups
-        </p>
       </div>
 
       {/* Posts List */}

@@ -138,57 +138,6 @@ export default function FriendsPosts() {
         </div>
       </div>
 
-      {/* Friend List Preview */}
-      {!loadingFriends && (
-        <div className="bg-white rounded-md shadow-sm p-4 mb-4">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-medium">Your Friends ({friends.length})</h2>
-            {friends.length > 0 && (
-              <Link
-                href="/user"
-                className="text-sm text-blue-500 hover:underline"
-              >
-                View All
-              </Link>
-            )}
-          </div>
-
-          {friends.length === 0 ? (
-            <div className="text-center py-2">
-              <p className="text-gray-500 text-sm">
-                You haven't added any friends yet.
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                Find users and click "Add Friend" to see their posts here.
-              </p>
-            </div>
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              {friends.slice(0, 5).map((friend) => (
-                <Link
-                  key={friend.id}
-                  href={`/user/${friend.username}`}
-                  className="flex items-center bg-gray-100 py-1 px-2 rounded-full hover:bg-gray-200"
-                >
-                  <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold mr-1">
-                    {friend.username.slice(0, 1).toUpperCase()}
-                  </div>
-                  <span className="text-sm">{friend.username}</span>
-                </Link>
-              ))}
-              {friends.length > 5 && (
-                <Link
-                  href="/user"
-                  className="flex items-center bg-gray-100 py-1 px-3 rounded-full hover:bg-gray-200"
-                >
-                  <span className="text-sm">+{friends.length - 5} more</span>
-                </Link>
-              )}
-            </div>
-          )}
-        </div>
-      )}
-
       {/* Posts Section */}
       {loading && posts.length === 0 ? (
         <div className="flex justify-center items-center py-12">

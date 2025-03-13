@@ -97,7 +97,7 @@ export default function PopularPosts() {
               onClick={() => handlePeriodChange("day")}
               className={`px-3 py-1 rounded-full ${
                 selectedPeriod === "day"
-                  ? "bg-blue-500 text-white"
+                  ? "bg-yellow-500 text-white"
                   : "bg-gray-200 hover:bg-gray-300"
               }`}
             >
@@ -107,7 +107,7 @@ export default function PopularPosts() {
               onClick={() => handlePeriodChange("week")}
               className={`px-3 py-1 rounded-full ${
                 selectedPeriod === "week"
-                  ? "bg-blue-500 text-white"
+                  ? "bg-yellow-500 text-white"
                   : "bg-gray-200 hover:bg-gray-300"
               }`}
             >
@@ -117,7 +117,7 @@ export default function PopularPosts() {
               onClick={() => handlePeriodChange("month")}
               className={`px-3 py-1 rounded-full ${
                 selectedPeriod === "month"
-                  ? "bg-blue-500 text-white"
+                  ? "bg-yellow-500 text-white"
                   : "bg-gray-200 hover:bg-gray-300"
               }`}
             >
@@ -127,7 +127,7 @@ export default function PopularPosts() {
               onClick={() => handlePeriodChange("all")}
               className={`px-3 py-1 rounded-full ${
                 selectedPeriod === "all"
-                  ? "bg-blue-500 text-white"
+                  ? "bg-yellow-500 text-white"
                   : "bg-gray-200 hover:bg-gray-300"
               }`}
             >

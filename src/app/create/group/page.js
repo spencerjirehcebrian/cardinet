@@ -1,3 +1,4 @@
+// src/app/create/group/page.js
 "use client";
 
 import { useState, useEffect } from "react";
@@ -112,8 +113,8 @@ export default function CreateGroupPage() {
 
       const data = await response.json();
 
-      // Redirect to the new group
-      router.push(`/group/${data.group.name}`);
+      // Redirect to the new group WITH a refresh query parameter
+      router.push(`/group/${data.group.name}?refresh=${Date.now()}`); // Add this line
     } catch (error) {
       console.error("Group creation error:", error);
       setErrors((prev) => ({

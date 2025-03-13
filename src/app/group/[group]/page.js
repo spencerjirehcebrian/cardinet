@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import prisma from "@/lib/db";
-import GroupHeader from "@/components/group/GroupHeader";
-import PostList from "@/components/post/PostList";
+import GroupPage from "./client";
 
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
@@ -24,7 +23,7 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default async function groupPage({ params }) {
+export default async function GroupServerPage({ params }) {
   const resolvedParams = await params;
   const groupName = resolvedParams.group;
 
@@ -49,13 +48,5 @@ export default async function groupPage({ params }) {
     notFound();
   }
 
-  return (
-    <div>
-      <GroupHeader group={group} />
-
-      <div className="mt-4">
-        <PostList groupId={group.id} />
-      </div>
-    </div>
-  );
+  return <GroupPage group={group} />;
 }

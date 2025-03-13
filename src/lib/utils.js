@@ -59,3 +59,19 @@ export function generateGroupColor(name) {
   const index = Math.abs(hash) % colors.length;
   return colors[index];
 }
+
+// Helper to get profile image URL for a user with fallback
+export function getUserImageUrl(username, withTimestamp = true) {
+  if (!username) return "/logo.png";
+
+  const timestamp = withTimestamp ? `?t=${new Date().getTime()}` : "";
+  return `/api/users/${username}/image${timestamp}`;
+}
+
+// Helper to get group image URL with fallback
+export function getGroupImageUrl(groupId, withTimestamp = true) {
+  if (!groupId) return "/logo.png";
+
+  const timestamp = withTimestamp ? `?t=${new Date().getTime()}` : "";
+  return `/api/groups/${groupId}/image${timestamp}`;
+}

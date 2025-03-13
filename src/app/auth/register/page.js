@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/components/auth/AuthContext";
+import Button from "@/components/ui/Button";
 
 export default function RegisterPage() {
   const { register, login } = useAuth();
@@ -14,9 +15,12 @@ export default function RegisterPage() {
     email: "",
     password: "",
     confirmPassword: "",
+    birthday: "",
+    phoneNumber: "",
   });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [dateInputType, setDateInputType] = useState("text");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -48,6 +52,14 @@ export default function RegisterPage() {
       return false;
     }
 
+    // Email validation for Mapua school email
+    if (!formData.email.endsWith("@mymail.mapua.edu.ph")) {
+      setError(
+        "Email must be a valid Mapua school email (@mymail.mapua.edu.ph)"
+      );
+      return false;
+    }
+
     return true;
   };
 
@@ -62,8 +74,15 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      const { username, email, password } = formData;
-      const result = await register(username, email, password);
+      const { username, email, password, fullName, birthday, phoneNumber } =
+        formData;
+      const result = await register(
+        username,
+        email,
+        password,
+        birthday,
+        phoneNumber
+      );
 
       if (result.success) {
         // Automatically log in the new user
@@ -86,123 +105,184 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
-      <div className="flex flex-col items-center-6">
-        <Image
-          src="/logo.png"
-          alt="CardiNet Logo"
-          width={64}
-          height={64}
-          className="mb-2"
-        />
-        <h1 className="text-2xl font-bold">Create an Account</h1>
-        <p className="text-gray-600 text-center mt-1">
-          Join the CardiNet community
-        </p>
+    <div className="w-full mx-auto p-8 animate-[fadeIn_0.4s_ease-in-out] flex flex-col items-center">
+      {/* Logo and Title moved outside the yellow container */}
+      <div className="flex items-center space-x-3 mb-6">
+        <Image src="/logo.png" alt="CardiNet Logo" width={64} height={64} />
+        <h1 className="text-5xl font-bold text-yellow-400">CardiNet</h1>
       </div>
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label
-            htmlFor="username"
-            className="block text-gray-700 font-medium mb-1"
-          >
-            Username
-          </label>
-          <input
-            type="text"
-            id="username"
-            name="username"
-            value={formData.username}
-            onChange={handleChange}
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            disabled={isLoading}
-          />
+      {/* Yellow container with registration form */}
+      <div className="w-full max-w-4xl mx-auto bg-yellow-500 rounded-3xl shadow-lg p-8">
+        <div className="flex flex-col items-center mb-6">
+          <h2 className="text-xl font-semibold text-center mt-4 text-red-800">
+            Create New Account
+          </h2>
         </div>
 
-        <div className="mb-4">
-          <label
-            htmlFor="email"
-            className="block text-gray-700 font-medium mb-1"
-          >
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            disabled={isLoading}
-          />
-        </div>
+        {error && (
+          <div className="mb-6 p-4 bg-red-100 border-l-4 border-red-600 rounded-lg flex items-center shadow-md animate-[fadeIn_0.3s_ease-in-out] max-w-md mx-auto">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6 text-red-600 mr-3 flex-shrink-0"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span className="text-red-700 font-medium">{error}</span>
+          </div>
+        )}
 
-        <div className="mb-4">
-          <label
-            htmlFor="password"
-            className="block text-gray-700 font-medium mb-1"
-          >
-            Password
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            disabled={isLoading}
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            Must be at least 8 characters long
-          </p>
-        </div>
-
-        <div className="mb-6">
-          <label
-            htmlFor="confirmPassword"
-            className="block text-gray-700 font-medium mb-1"
-          >
-            Confirm Password
-          </label>
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            disabled={isLoading}
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        <form
+          onSubmit={handleSubmit}
+          className="px-6 grid gap-1 max-w-md mx-auto"
         >
-          {isLoading ? "Creating Account..." : "Sign Up"}
-        </button>
-      </form>
+          <div className="mb-4">
+            <div className="flex items-center w-full bg-red-900 bg-opacity-90 rounded-full overflow-hidden transition-all duration-300 focus-within:shadow-md focus-within:shadow-red-800">
+              <label className="text-white pl-6 py-4 whitespace-nowrap">
+                Full Name:{" "}
+              </label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                required
+                className="w-full bg-transparent border-none focus:outline-none text-white pr-6 pl-1"
+                disabled={isLoading}
+              />
+            </div>
+          </div>
 
-      <div className="mt-4 text-center">
-        <p className="text-gray-600">
-          Already have an account?{" "}
-          <Link href="/auth/login" className="text-blue-500 hover:underline">
-            Log In
-          </Link>
-        </p>
+          <div className="mb-4">
+            <div className="flex items-center w-full bg-red-900 bg-opacity-90 rounded-full overflow-hidden transition-all duration-300 focus-within:shadow-md focus-within:shadow-red-800">
+              <label className="text-white pl-6 py-4 whitespace-nowrap">
+                Birthday:{" "}
+              </label>
+              <input
+                type={dateInputType}
+                id="birthday"
+                name="birthday"
+                value={formData.birthday}
+                onChange={handleChange}
+                onFocus={() => setDateInputType("date")}
+                onBlur={() => {
+                  if (!formData.birthday) {
+                    setDateInputType("text");
+                  }
+                }}
+                required
+                className="w-full bg-transparent border-none focus:outline-none text-white pr-6 pl-1"
+                disabled={isLoading}
+              />
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <div className="flex items-center w-full bg-red-900 bg-opacity-90 rounded-full overflow-hidden transition-all duration-300 focus-within:shadow-md focus-within:shadow-red-800">
+              <label className="text-white pl-6 py-4 whitespace-nowrap">
+                School Email:{" "}
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                className="w-full bg-transparent border-none focus:outline-none text-white pr-6 pl-1"
+                disabled={isLoading}
+              />
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <div className="flex items-center w-full bg-red-900 bg-opacity-90 rounded-full overflow-hidden transition-all duration-300 focus-within:shadow-md focus-within:shadow-red-800">
+              <label className="text-white pl-6 py-4 whitespace-nowrap">
+                Phone:{" "}
+              </label>
+              <input
+                type="tel"
+                id="phoneNumber"
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+                required
+                className="w-full bg-transparent border-none focus:outline-none text-white pr-6 pl-1"
+                disabled={isLoading}
+              />
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <div className="flex items-center w-full bg-red-900 bg-opacity-90 rounded-full overflow-hidden transition-all duration-300 focus-within:shadow-md focus-within:shadow-red-800">
+              <label className="text-white pl-6 py-4 whitespace-nowrap">
+                Password:{" "}
+              </label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                className="w-full bg-transparent border-none focus:outline-none text-white pr-6 pl-1"
+                disabled={isLoading}
+              />
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <div className="flex items-center w-full bg-red-900 bg-opacity-90 rounded-full overflow-hidden transition-all duration-300 focus-within:shadow-md focus-within:shadow-red-800">
+              <label className="text-white pl-6 py-4 whitespace-nowrap">
+                Confirm:{" "}
+              </label>
+              <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                required
+                className="w-full bg-transparent border-none focus:outline-none text-white pr-6 pl-1"
+                disabled={isLoading}
+              />
+            </div>
+          </div>
+          <div className="flex flex-col items-center gap-4">
+            <Button
+              type="submit"
+              variant="auth"
+              isLoading={isLoading}
+              disabled={isLoading}
+              className="rounded-full"
+            >
+              Create Account
+            </Button>
+
+            <p className="text-red-900 mt-2">
+              Already have an account?{" "}
+              <Link
+                href="/auth/login"
+                className="underline font-medium hover:text-red-700 transition-colors"
+              >
+                Login here
+              </Link>
+            </p>
+          </div>
+        </form>
+
+        <div className="mt-12 text-center">
+          <h3 className="text-3xl text-red-900">LEARN.DISCOVER.CREATE</h3>
+        </div>
       </div>
     </div>
   );

@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/components/auth/AuthContext";
-import { formatRelativeTime } from "@/lib/utils";
+import { formatRelativeTime, getUserImageUrl } from "@/lib/utils";
 import { FaArrowUp, FaArrowDown, FaComments, FaShare } from "react-icons/fa";
 
 export default function PostItem({ post, isDetailView = false }) {
@@ -111,6 +111,7 @@ export default function PostItem({ post, isDetailView = false }) {
 
   const groupLink = `/group/${post.group.name}`;
   const postLink = `${groupLink}/comments/${post.id}`;
+  const authorLink = `/user/${post.author.username}`;
 
   return (
     <div className="bg-white rounded-md shadow-sm hover:shadow-md transition-shadow">
@@ -154,33 +155,30 @@ export default function PostItem({ post, isDetailView = false }) {
 
         {/* Post content */}
         <div className="p-3 flex-grow">
-          {/* Post header */}
-          <div className="text-xs text-gray-500 mb-2">
+          {/* Post header with user info first */}
+          <div className="text-xs text-gray-500 mb-2 flex items-center">
             <Link
-              href={groupLink}
-              className="flex items-center text-xs hover:underline mr-1"
+              href={authorLink}
+              className="flex items-center text-xs hover:underline mr-2"
             >
-              <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center mr-1">
-                {/* Replace FaReddit with your custom logo icon */}
+              <div className="w-15 h-15 rounded-full overflow-hidden bg-blue-500 mr-1 flex-shrink-0">
                 <Image
-                  src="/logo-icon.png"
-                  alt="Group"
-                  width={10}
-                  height={10}
-                  className="text-white text-xs"
+                  src={`/api/users/${post.author.username}/image`}
+                  alt={post.author.username}
+                  width={70}
+                  height={70}
+                  className="object-cover"
+                  onError={(e) => {
+                    e.target.src = "/logo.png";
+                  }}
                 />
               </div>
-              <span className="font-medium hover:underline">
-                {post.group.name}
-              </span>
+              <span className="font-medium pl-2">{post.author.username}</span>
             </Link>
             <span className="text-gray-500">
-              • Posted by{" "}
-              <Link
-                href={`/user/${post.author.username}`}
-                className="hover:underline"
-              >
-                {post.author.username}
+              • Posted in{" "}
+              <Link href={groupLink} className="hover:underline text-blue-500">
+                {post.group.name}
               </Link>{" "}
               {formatRelativeTime(post.createdAt)}
             </span>
@@ -228,5 +226,6 @@ export default function PostItem({ post, isDetailView = false }) {
           </div>
         </div>
       </div>
-    </div>  );
+    </div>
+  );
 }

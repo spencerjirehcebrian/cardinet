@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useAuth } from "@/components/auth/AuthContext";
 import { formatRelativeTime } from "@/lib/utils";
 import CommentForm from "./CommentForm";
@@ -189,13 +190,27 @@ export default function CommentItem({
 
         {/* Comment content */}
         <div className="flex-grow">
-          {/* Comment header */}
+          {/* Comment header with user image and username first */}
           <div className="flex items-center text-xs text-gray-500 mb-1">
             <Link
               href={`/user/${comment.author.username}`}
-              className="font-medium text-gray-900 hover:underline"
+              className="flex items-center mr-2"
             >
-              {comment.author.username}
+              <div className="w-7 h-7 rounded-full overflow-hidden bg-blue-500 mr-1 flex-shrink-0">
+                <Image
+                  src={`/api/users/${comment.author.username}/image`}
+                  alt={comment.author.username}
+                  width={30}
+                  height={30}
+                  className="object-cover"
+                  onError={(e) => {
+                    e.target.src = "/logo.png";
+                  }}
+                />
+              </div>
+              <span className="font-medium text-gray-900 hover:underline pl-1">
+                {comment.author.username}
+              </span>
             </Link>
             <span className="mx-1">•</span>
             <span>{formatRelativeTime(comment.createdAt)}</span>
