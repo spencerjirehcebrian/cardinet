@@ -5,7 +5,7 @@ A Reddit-like application built with Next.js, SQLite, and Docker.
 ## Features
 
 - User authentication (signup, login, logout)
-- Communities/subreddits
+- Group/subreddits
 - Post creation and viewing
 - Comments and nested replies
 - Upvoting/downvoting system

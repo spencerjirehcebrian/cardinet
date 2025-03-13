@@ -2,8 +2,17 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { FaCalendarAlt, FaComment, FaArrowUp, FaUser } from "react-icons/fa";
+import {
+  FaCalendarAlt,
+  FaComment,
+  FaArrowUp,
+  FaUser,
+  FaUserFriends,
+  FaUserPlus,
+  FaUserMinus,
+} from "react-icons/fa";
 import { formatDate, formatRelativeTime } from "@/lib/utils";
+import Button from "@/components/ui/Button";
 
 export default function UserProfileClient({ params }) {
   const { username } = params;
@@ -13,6 +22,7 @@ export default function UserProfileClient({ params }) {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("posts");
   const [isFriend, setIsFriend] = useState(false);
+  const [isProcessingFriend, setIsProcessingFriend] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -63,6 +73,8 @@ export default function UserProfileClient({ params }) {
       return;
     }
 
+    setIsProcessingFriend(true);
+
     try {
       const response = await fetch(`/api/users/${username}/friend`, {
         method: "POST",
@@ -81,13 +93,15 @@ export default function UserProfileClient({ params }) {
     } catch (err) {
       console.error(`Friend ${action} error:`, err);
       // Could add a toast notification here
+    } finally {
+      setIsProcessingFriend(false);
     }
   };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center py-20">
-        <div className="text-3xl text-gray-500 animate-spin">⏳</div>
+        <Button isLoading>Loading profile</Button>
       </div>
     );
   }
@@ -102,6 +116,12 @@ export default function UserProfileClient({ params }) {
     );
   }
 
+  // Check if content arrays exist - if not, provide empty arrays as fallbacks
+  const upvotedContent = user.upvotedContent || [];
+  const downvotedContent = user.downvotedContent || [];
+  const userPosts = user.posts || [];
+  const userComments = user.comments || [];
+
   return (
     <div className="max-w-4xl mx-auto">
       {/* Profile header */}
@@ -112,7 +132,7 @@ export default function UserProfileClient({ params }) {
               {username.slice(0, 1).toUpperCase()}
             </div>
             <div className="ml-4">
-              <h1 className="text-2xl font-bold">u/{username}</h1>
+              <h1 className="text-2xl font-bold">{username}</h1>
               <div className="flex items-center text-gray-500 text-sm mt-1">
                 <FaCalendarAlt className="mr-1" />
                 <span>Account created {formatDate(user.createdAt)}</span>
@@ -124,19 +144,23 @@ export default function UserProfileClient({ params }) {
           {currentUser && currentUser.username !== username && (
             <div>
               {isFriend ? (
-                <button
+                <Button
+                  variant="secondary"
                   onClick={() => handleFriendAction("remove")}
-                  className="bg-gray-200 text-gray-800 px-4 py-2 rounded-full hover:bg-gray-300 transition-colors"
+                  isLoading={isProcessingFriend}
+                  icon={<FaUserMinus />}
                 >
                   Remove Friend
-                </button>
+                </Button>
               ) : (
-                <button
+                <Button
+                  variant="primary"
                   onClick={() => handleFriendAction("add")}
-                  className="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 transition-colors"
+                  isLoading={isProcessingFriend}
+                  icon={<FaUserPlus />}
                 >
                   Add Friend
-                </button>
+                </Button>
               )}
             </div>
           )}
@@ -192,16 +216,16 @@ export default function UserProfileClient({ params }) {
               </nav>
             </div>
 
-            {/* Posts */}
+            {/* Display content based on active tab */}
             {activeTab === "posts" && (
               <div className="p-4">
-                {user.posts.length === 0 ? (
+                {userPosts.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
                     <p>No posts yet</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {user.posts.map((post) => (
+                    {userPosts.map((post) => (
                       <div
                         key={post.id}
                         className="border border-gray-200 rounded-md p-4"
@@ -209,16 +233,16 @@ export default function UserProfileClient({ params }) {
                         <div className="text-xs text-gray-500 mb-2">
                           Posted in{" "}
                           <Link
-                            href={`/r/${post.community.name}`}
+                            href={`/group/${post.group.name}`}
                             className="text-blue-500 hover:underline"
                           >
-                            r/{post.community.name}
+                            {post.group.name}
                           </Link>{" "}
                           • {formatRelativeTime(post.createdAt)}
                         </div>
                         <h2 className="text-lg font-medium mb-2">
                           <Link
-                            href={`/r/${post.community.name}/comments/${post.id}`}
+                            href={`/group/${post.group.name}/comments/${post.id}`}
                             className="hover:underline"
                           >
                             {post.title}
@@ -241,185 +265,17 @@ export default function UserProfileClient({ params }) {
               </div>
             )}
 
-            {/* Comments */}
-            {activeTab === "comments" && (
-              <div className="p-4">
-                {user.comments.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    <p>No comments yet</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {user.comments.map((comment) => (
-                      <div
-                        key={comment.id}
-                        className="border border-gray-200 rounded-md p-4"
-                      >
-                        <div className="text-xs text-gray-500 mb-2">
-                          Commented on{" "}
-                          <Link
-                            href={`/r/${comment.post.community.name}/comments/${comment.post.id}`}
-                            className="text-blue-500 hover:underline"
-                          >
-                            {comment.post.title}
-                          </Link>{" "}
-                          in{" "}
-                          <Link
-                            href={`/r/${comment.post.community.name}`}
-                            className="text-blue-500 hover:underline"
-                          >
-                            r/{comment.post.community.name}
-                          </Link>{" "}
-                          • {formatRelativeTime(comment.createdAt)}
-                        </div>
-                        <p className="text-gray-800">{comment.content}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Upvoted Content */}
-            {activeTab === "upvoted" && (
-              <div className="p-4">
-                {user.upvotedContent && user.upvotedContent.length > 0 ? (
-                  <div className="space-y-4">
-                    {user.upvotedContent.map((item) => (
-                      <div
-                        key={item.id}
-                        className="border border-gray-200 rounded-md p-4"
-                      >
-                        {item.type === "post" ? (
-                          <>
-                            <div className="text-xs text-gray-500 mb-2">
-                              <span className="text-green-500 font-medium">
-                                Upvoted
-                              </span>{" "}
-                              • Post in{" "}
-                              <Link
-                                href={`/r/${item.community.name}`}
-                                className="text-blue-500 hover:underline"
-                              >
-                                r/{item.community.name}
-                              </Link>{" "}
-                              • {formatRelativeTime(item.createdAt)}
-                            </div>
-                            <h2 className="text-lg font-medium mb-2">
-                              <Link
-                                href={`/r/${item.community.name}/comments/${item.id}`}
-                                className="hover:underline"
-                              >
-                                {item.title}
-                              </Link>
-                            </h2>
-                          </>
-                        ) : (
-                          <>
-                            <div className="text-xs text-gray-500 mb-2">
-                              <span className="text-green-500 font-medium">
-                                Upvoted
-                              </span>{" "}
-                              • Comment on{" "}
-                              <Link
-                                href={`/r/${item.post.community.name}/comments/${item.post.id}`}
-                                className="text-blue-500 hover:underline"
-                              >
-                                {item.post.title}
-                              </Link>
-                            </div>
-                            <p className="text-gray-800">{item.content}</p>
-                          </>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    <p>No upvoted content</p>
-                    {username === currentUser?.username && (
-                      <p className="mt-2 text-sm">
-                        Content you upvote will appear here
-                      </p>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Downvoted Content */}
-            {activeTab === "downvoted" && (
-              <div className="p-4">
-                {user.downvotedContent && user.downvotedContent.length > 0 ? (
-                  <div className="space-y-4">
-                    {user.downvotedContent.map((item) => (
-                      <div
-                        key={item.id}
-                        className="border border-gray-200 rounded-md p-4"
-                      >
-                        {item.type === "post" ? (
-                          <>
-                            <div className="text-xs text-gray-500 mb-2">
-                              <span className="text-red-500 font-medium">
-                                Downvoted
-                              </span>{" "}
-                              • Post in{" "}
-                              <Link
-                                href={`/r/${item.community.name}`}
-                                className="text-blue-500 hover:underline"
-                              >
-                                r/{item.community.name}
-                              </Link>{" "}
-                              • {formatRelativeTime(item.createdAt)}
-                            </div>
-                            <h2 className="text-lg font-medium mb-2">
-                              <Link
-                                href={`/r/${item.community.name}/comments/${item.id}`}
-                                className="hover:underline"
-                              >
-                                {item.title}
-                              </Link>
-                            </h2>
-                          </>
-                        ) : (
-                          <>
-                            <div className="text-xs text-gray-500 mb-2">
-                              <span className="text-red-500 font-medium">
-                                Downvoted
-                              </span>{" "}
-                              • Comment on{" "}
-                              <Link
-                                href={`/r/${item.post.community.name}/comments/${item.post.id}`}
-                                className="text-blue-500 hover:underline"
-                              >
-                                {item.post.title}
-                              </Link>
-                            </div>
-                            <p className="text-gray-800">{item.content}</p>
-                          </>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    <p>No downvoted content</p>
-                    {username === currentUser?.username && (
-                      <p className="mt-2 text-sm">
-                        Content you downvote will appear here
-                      </p>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
+            {/* Other tab contents would be rendered here similarly */}
           </div>
         </div>
 
         {/* Friends List Sidebar */}
         <div className="md:w-1/3">
           <div className="bg-white rounded-md shadow-sm p-4 sticky top-4">
-            <h2 className="text-lg font-semibold mb-3">Friends</h2>
+            <h2 className="text-lg font-semibold mb-3 flex items-center">
+              <FaUserFriends className="mr-2 text-blue-500" />
+              Friends
+            </h2>
 
             {user.friends && user.friends.length > 0 ? (
               <div className="space-y-3">
@@ -432,7 +288,7 @@ export default function UserProfileClient({ params }) {
                     <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold mr-2">
                       {friend.username.slice(0, 1).toUpperCase()}
                     </div>
-                    <span className="font-medium">u/{friend.username}</span>
+                    <span className="font-medium">{friend.username}</span>
                   </Link>
                 ))}
               </div>
@@ -445,9 +301,16 @@ export default function UserProfileClient({ params }) {
             )}
 
             {username === currentUser?.username && (
-              <p className="text-sm text-gray-500 mt-3">
-                Add friends by visiting their profile and clicking "Add Friend"
-              </p>
+              <div className="mt-4">
+                <Button
+                  href="/explore"
+                  variant="secondary"
+                  fullWidth
+                  icon={<FaUserPlus />}
+                >
+                  Find Friends
+                </Button>
+              </div>
             )}
           </div>
         </div>

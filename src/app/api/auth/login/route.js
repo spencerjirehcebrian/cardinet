@@ -26,8 +26,32 @@ export async function POST(request) {
     const { usernameOrEmail, password } = body;
 
     // Verify credentials
-    const user = await verifyCredentials(usernameOrEmail, password);
+    const credResult = await verifyCredentials(usernameOrEmail, password);
 
+    if (!credResult.success) {
+      // Use a generic error message for both user not found and invalid password
+      // This is a security best practice to prevent username enumeration
+      if (
+        credResult.error === "auth/user-not-found" ||
+        credResult.error === "auth/invalid-password"
+      ) {
+        return NextResponse.json(
+          { error: "Invalid username/email or password" },
+          { status: 401 }
+        );
+      }
+
+      // Handle other potential errors
+      return NextResponse.json(
+        { error: "Authentication failed" },
+        { status: 401 }
+      );
+    }
+
+    // User authenticated successfully
+    const user = credResult.user;
+
+    // Within your POST function:
     // Create JWT token
     const token = sign(
       { userId: user.id, username: user.username },
@@ -35,8 +59,17 @@ export async function POST(request) {
       { expiresIn: "7d" }
     );
 
-    // Set cookie
-    cookies().set({
+    // Create response
+    const response = NextResponse.json(
+      {
+        message: "Login successful",
+        user: { id: user.id, username: user.username },
+      },
+      { status: 200 }
+    );
+
+    // Set cookie on the response
+    response.cookies.set({
       name: "auth-token",
       value: token,
       httpOnly: true,
@@ -46,13 +79,7 @@ export async function POST(request) {
       sameSite: "strict",
     });
 
-    return NextResponse.json(
-      {
-        message: "Login successful",
-        user: { id: user.id, username: user.username },
-      },
-      { status: 200 }
-    );
+    return response;
   } catch (error) {
     console.error("Login error:", error);
 

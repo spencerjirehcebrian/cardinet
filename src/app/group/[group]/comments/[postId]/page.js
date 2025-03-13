@@ -6,12 +6,12 @@ import CommentSection from "@/components/comment/CommentSection";
 export async function generateMetadata({ params }) {
   // Await params before accessing its properties
   const resolvedParams = await params;
-  const postId = resolvedParams.postId;
+  const { postId } = resolvedParams;
 
   const post = await prisma.post.findUnique({
     where: { id: postId },
     include: {
-      community: true,
+      group: true,
     },
   });
 
@@ -24,14 +24,14 @@ export async function generateMetadata({ params }) {
   return {
     title: post.title,
     description:
-      post.content?.substring(0, 160) || `A post in r/${post.community.name}`,
+      post.content?.substring(0, 160) || `A post in ${post.group.name}`,
   };
 }
 
 export default async function PostDetailPage({ params }) {
   // Await params before accessing its properties
   const resolvedParams = await params;
-  const postId = resolvedParams.postId;
+  const { postId, group: groupParam } = resolvedParams;
 
   const post = await prisma.post.findUnique({
     where: { id: postId },
@@ -41,7 +41,7 @@ export default async function PostDetailPage({ params }) {
           username: true,
         },
       },
-      community: true,
+      group: true,
       _count: {
         select: {
           comments: true,
@@ -55,12 +55,15 @@ export default async function PostDetailPage({ params }) {
     notFound();
   }
 
+  // Extract group name from either the post data or the URL param
+  const groupName = post.group.name || groupParam;
+
   return (
     <div>
       <PostItem post={post} isDetailView={true} />
 
       <div className="mt-4">
-        <CommentSection postId={post.id} />
+        <CommentSection postId={post.id} groupName={groupName} />
       </div>
     </div>
   );

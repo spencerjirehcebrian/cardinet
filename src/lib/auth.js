@@ -42,17 +42,20 @@ export async function verifyCredentials(usernameOrEmail, password) {
   });
 
   if (!user) {
-    throw new Error("User not found");
+    return { success: false, error: "auth/user-not-found" };
   }
 
   // Verify the password
   const isValid = await compare(password, user.passwordHash);
 
   if (!isValid) {
-    throw new Error("Invalid password");
+    return { success: false, error: "auth/invalid-password" };
   }
 
-  return { id: user.id, username: user.username };
+  return {
+    success: true,
+    user: { id: user.id, username: user.username },
+  };
 }
 
 export async function getUserById(id) {
@@ -98,7 +101,7 @@ export async function getUserByUsername(username) {
           id: true,
           title: true,
           createdAt: true,
-          community: {
+          group: {
             select: {
               name: true,
             },
@@ -123,7 +126,7 @@ export async function getUserByUsername(username) {
             select: {
               id: true,
               title: true,
-              community: {
+              group: {
                 select: {
                   name: true,
                 },

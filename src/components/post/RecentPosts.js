@@ -86,7 +86,7 @@ export default function RecentPosts() {
           <h2 className="text-lg font-semibold">Explore Recent Posts</h2>
         </div>
         <p className="text-gray-600 text-sm mt-1">
-          Discover the latest posts from all communities
+          Discover the latest posts from all groups
         </p>
       </div>
 
@@ -95,7 +95,7 @@ export default function RecentPosts() {
         <div className="bg-white rounded-md shadow-sm p-6 text-center">
           <h2 className="text-lg font-semibold mb-2">No posts yet</h2>
           <p className="text-gray-600">
-            Be the first to start a discussion in the community.
+            Be the first to start a discussion in the group.
           </p>
         </div>
       ) : (

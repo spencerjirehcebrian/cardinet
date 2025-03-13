@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { FaReddit } from "react-icons/fa";
+import { FaReddit, FaPlus } from "react-icons/fa";
 import PostList from "@/components/post/PostList";
+import Button from "@/components/ui/Button";
 
 export default async function Home() {
   return (
@@ -10,14 +11,16 @@ export default async function Home() {
         <h2 className="text-lg font-semibold mb-3">Home</h2>
         <p className="text-gray-600 mb-4">
           Your personal CardiNet frontpage. Come here to check in with your
-          favorite communities.
+          favorite groups.
         </p>
-        <Link
+        <Button
           href="/create/post"
-          className="block w-full bg-blue-500 text-white text-center py-2 px-4 rounded-md hover:bg-blue-600 mb-2"
+          fullWidth
+          variant="primary"
+          icon={<FaPlus />}
         >
           Create Post
-        </Link>
+        </Button>
       </div>
 
       {/* Posts feed */}

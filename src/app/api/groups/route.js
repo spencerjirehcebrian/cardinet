@@ -4,7 +4,7 @@ import { getUserFromToken } from "@/lib/utils";
 import { z } from "zod";
 
 // Define validation schema
-const communitySchema = z.object({
+const groupSchema = z.object({
   name: z
     .string()
     .min(3)
@@ -28,7 +28,7 @@ export async function GET(request) {
       };
     }
 
-    const communities = await prisma.community.findMany({
+    const groups = await prisma.group.findMany({
       where: whereClause,
       include: {
         _count: {
@@ -46,9 +46,9 @@ export async function GET(request) {
       take: 50,
     });
 
-    return NextResponse.json({ communities });
+    return NextResponse.json({ groups });
   } catch (error) {
-    console.error("Error fetching communities:", error);
+    console.error("Error fetching groups:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -66,7 +66,7 @@ export async function POST(request) {
     const body = await request.json();
 
     // Validate request data
-    const result = communitySchema.safeParse(body);
+    const result = groupSchema.safeParse(body);
     if (!result.success) {
       return NextResponse.json(
         { error: "Invalid input", details: result.error.flatten() },
@@ -76,20 +76,20 @@ export async function POST(request) {
 
     const { name, description } = body;
 
-    // Check if community name is already taken
-    const existingCommunity = await prisma.community.findUnique({
+    // Check if group name is already taken
+    const existingGroup = await prisma.group.findUnique({
       where: { name },
     });
 
-    if (existingCommunity) {
+    if (existingGroup) {
       return NextResponse.json(
-        { error: "Community name already exists" },
+        { error: "group name already exists" },
         { status: 409 }
       );
     }
 
-    // Create community
-    const community = await prisma.community.create({
+    // Create group
+    const group = await prisma.group.create({
       data: {
         name,
         description,
@@ -103,11 +103,11 @@ export async function POST(request) {
     });
 
     return NextResponse.json(
-      { message: "Community created successfully", community },
+      { message: "Group created successfully", group },
       { status: 201 }
     );
   } catch (error) {
-    console.error("Error creating community:", error);
+    console.error("Error creating group:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

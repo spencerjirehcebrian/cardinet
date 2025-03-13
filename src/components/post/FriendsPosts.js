@@ -175,7 +175,7 @@ export default function FriendsPosts() {
                   <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold mr-1">
                     {friend.username.slice(0, 1).toUpperCase()}
                   </div>
-                  <span className="text-sm">u/{friend.username}</span>
+                  <span className="text-sm">{friend.username}</span>
                 </Link>
               ))}
               {friends.length > 5 && (
@@ -212,7 +212,7 @@ export default function FriendsPosts() {
             href="/explore"
             className="inline-block bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600"
           >
-            Explore Communities
+            Explore Groups
           </Link>
         </div>
       ) : (

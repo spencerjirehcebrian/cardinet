@@ -7,7 +7,7 @@ export async function generateMetadata({ params }) {
   const username = resolvedParams.username;
 
   return {
-    title: `u/${username} - Reddit Clone`,
+    title: `${username} - Cardinet`,
     description: `User profile for ${username}`,
   };
 }

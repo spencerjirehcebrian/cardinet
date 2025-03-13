@@ -39,7 +39,7 @@ export async function GET(request) {
             username: true,
           },
         },
-        community: {
+        group: {
           select: {
             name: true,
           },

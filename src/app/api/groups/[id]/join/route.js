@@ -9,25 +9,24 @@ export async function POST(request, { params }) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = params;
+    // Await params before accessing its properties
+    const resolvedParams = await params;
+    const { id } = resolvedParams;
 
-    // Check if community exists
-    const community = await prisma.community.findUnique({
+    // Check if group exists
+    const group = await prisma.group.findUnique({
       where: { id },
     });
 
-    if (!community) {
-      return NextResponse.json(
-        { error: "Community not found" },
-        { status: 404 }
-      );
+    if (!group) {
+      return NextResponse.json({ error: "Group not found" }, { status: 404 });
     }
 
     // Check if user is already a member
-    const existingMembership = await prisma.communitiesOnUsers.findUnique({
+    const existingMembership = await prisma.groupsOnUsers.findUnique({
       where: {
-        communityId_userId: {
-          communityId: id,
+        groupId_userId: {
+          groupId: id,
           userId: user.userId,
         },
       },
@@ -35,25 +34,25 @@ export async function POST(request, { params }) {
 
     if (existingMembership) {
       return NextResponse.json(
-        { error: "User is already a member of this community" },
+        { error: "User is already a member of this group" },
         { status: 409 }
       );
     }
 
-    // Add user to community
-    await prisma.communitiesOnUsers.create({
+    // Add user to group
+    await prisma.groupsOnUsers.create({
       data: {
-        communityId: id,
+        groupId: id,
         userId: user.userId,
       },
     });
 
     return NextResponse.json(
-      { message: "Successfully joined community" },
+      { message: "Successfully joined group" },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error joining community:", error);
+    console.error("Error joining group:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

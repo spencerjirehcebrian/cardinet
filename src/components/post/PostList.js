@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import PostItem from "./PostItem";
 import { FaSpinner } from "react-icons/fa";
+import Button from "@/components/ui/Button";
 
-export default function PostList({ communityId = null }) {
+export default function PostList({ groupId = null }) {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,8 +23,8 @@ export default function PostList({ communityId = null }) {
         limit: pagination.limit,
       });
 
-      if (communityId) {
-        queryParams.append("communityId", communityId);
+      if (groupId) {
+        queryParams.append("groupId", groupId);
       }
 
       const response = await fetch(`/api/posts?${queryParams}`);
@@ -48,7 +49,7 @@ export default function PostList({ communityId = null }) {
 
   useEffect(() => {
     fetchPosts();
-  }, [pagination.page, communityId]);
+  }, [pagination.page, groupId]);
 
   const handleLoadMore = () => {
     if (pagination.page < pagination.totalPages) {
@@ -76,7 +77,7 @@ export default function PostList({ communityId = null }) {
       <div className="bg-white rounded-md shadow-sm p-6 text-center">
         <h2 className="text-lg font-semibold mb-2">No posts yet</h2>
         <p className="text-gray-600 mb-4">
-          Be the first to start a discussion in this community.
+          Be the first to start a discussion in this group.
         </p>
       </div>
     );
@@ -90,18 +91,13 @@ export default function PostList({ communityId = null }) {
 
       {pagination.page < pagination.totalPages && (
         <div className="flex justify-center py-4">
-          <button
+          <Button
+            variant="secondary"
             onClick={handleLoadMore}
-            className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-md"
+            isLoading={loading}
           >
-            {loading ? (
-              <span className="flex items-center">
-                <FaSpinner className="animate-spin mr-2" /> Loading...
-              </span>
-            ) : (
-              "Load More"
-            )}
-          </button>
+            Load More
+          </Button>
         </div>
       )}
     </div>

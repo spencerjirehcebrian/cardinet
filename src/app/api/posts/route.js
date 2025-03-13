@@ -7,20 +7,20 @@ import { z } from "zod";
 const postSchema = z.object({
   title: z.string().min(3).max(300),
   content: z.string().optional(),
-  communityId: z.string().min(1),
+  groupId: z.string().min(1),
 });
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
-  const communityId = searchParams.get("communityId");
+  const groupId = searchParams.get("groupId");
   const page = parseInt(searchParams.get("page") || "1");
   const limit = parseInt(searchParams.get("limit") || "25");
   const skip = (page - 1) * limit;
 
   try {
     const whereClause = {};
-    if (communityId) {
-      whereClause.communityId = communityId;
+    if (groupId) {
+      whereClause.groupId = groupId;
     }
 
     const posts = await prisma.post.findMany({
@@ -31,7 +31,7 @@ export async function GET(request) {
             username: true,
           },
         },
-        community: {
+        group: {
           select: {
             name: true,
           },
@@ -91,18 +91,15 @@ export async function POST(request) {
       );
     }
 
-    const { title, content, communityId } = body;
+    const { title, content, groupId } = body;
 
-    // Check if community exists
-    const community = await prisma.community.findUnique({
-      where: { id: communityId },
+    // Check if group exists
+    const group = await prisma.group.findUnique({
+      where: { id: groupId },
     });
 
-    if (!community) {
-      return NextResponse.json(
-        { error: "Community not found" },
-        { status: 404 }
-      );
+    if (!group) {
+      return NextResponse.json({ error: "Group not found" }, { status: 404 });
     }
 
     // Create post
@@ -111,7 +108,7 @@ export async function POST(request) {
         title,
         content,
         authorId: user.userId,
-        communityId,
+        groupId,
       },
       include: {
         author: {
@@ -119,7 +116,7 @@ export async function POST(request) {
             username: true,
           },
         },
-        community: {
+        group: {
           select: {
             name: true,
           },

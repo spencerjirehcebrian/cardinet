@@ -9,25 +9,24 @@ export async function POST(request, { params }) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = params;
+    // Await params before accessing its properties
+    const resolvedParams = await params;
+    const { id } = resolvedParams;
 
-    // Check if community exists
-    const community = await prisma.community.findUnique({
+    // Check if group exists
+    const group = await prisma.group.findUnique({
       where: { id },
     });
 
-    if (!community) {
-      return NextResponse.json(
-        { error: "Community not found" },
-        { status: 404 }
-      );
+    if (!group) {
+      return NextResponse.json({ error: "Group not found" }, { status: 404 });
     }
 
     // Check if user is a member
-    const membership = await prisma.communitiesOnUsers.findUnique({
+    const membership = await prisma.groupsOnUsers.findUnique({
       where: {
-        communityId_userId: {
-          communityId: id,
+        groupId_userId: {
+          groupId: id,
           userId: user.userId,
         },
       },
@@ -35,35 +34,35 @@ export async function POST(request, { params }) {
 
     if (!membership) {
       return NextResponse.json(
-        { error: "User is not a member of this community" },
+        { error: "User is not a member of this group" },
         { status: 404 }
       );
     }
 
     // Check if user is the owner
-    if (community.ownerId === user.userId) {
+    if (group.ownerId === user.userId) {
       return NextResponse.json(
-        { error: "Community owner cannot leave the community" },
+        { error: "Group owner cannot leave the group" },
         { status: 400 }
       );
     }
 
-    // Remove user from community
-    await prisma.communitiesOnUsers.delete({
+    // Remove user from group
+    await prisma.groupsOnUsers.delete({
       where: {
-        communityId_userId: {
-          communityId: id,
+        groupId_userId: {
+          groupId: id,
           userId: user.userId,
         },
       },
     });
 
     return NextResponse.json(
-      { message: "Successfully left community" },
+      { message: "Successfully left group" },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error leaving community:", error);
+    console.error("Error leaving group:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

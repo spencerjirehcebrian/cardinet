@@ -12,40 +12,40 @@ import {
   FaChevronDown,
   FaChevronUp,
 } from "react-icons/fa";
-import { generateCommunityColor } from "@/lib/utils";
+import { generateGroupColor } from "@/lib/utils";
 
 export default function LeftSidebar() {
-  const [communities, setCommunities] = useState([]);
+  const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isCommunitiesExpanded, setIsCommunitiesExpanded] = useState(true);
+  const [isGroupsExpanded, setIsGroupsExpanded] = useState(true);
   const pathname = usePathname();
 
   useEffect(() => {
-    const fetchCommunities = async () => {
+    const fetchGroups = async () => {
       try {
         setLoading(true);
-        const response = await fetch("/api/communities");
+        const response = await fetch("/api/groups");
 
         if (!response.ok) {
-          throw new Error("Failed to fetch communities");
+          throw new Error("Failed to fetch groups");
         }
 
         const data = await response.json();
-        setCommunities(data.communities);
+        setGroups(data.groups);
       } catch (err) {
-        console.error("Error fetching communities:", err);
-        setError("Failed to load communities");
+        console.error("Error fetching groups:", err);
+        setError("Failed to load groups");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCommunities();
+    fetchGroups();
   }, []);
 
-  const toggleCommunitiesExpanded = () => {
-    setIsCommunitiesExpanded(!isCommunitiesExpanded);
+  const toggleGroupsExpanded = () => {
+    setIsGroupsExpanded(!isGroupsExpanded);
   };
 
   const isActive = (path) => {
@@ -59,65 +59,92 @@ export default function LeftSidebar() {
         <div className="space-y-1">
           <Link
             href="/"
-            className={`flex items-center px-4 py-2 rounded-md ${
+            className={`group flex items-center px-4 py-2 rounded-md transition ${
               isActive("/")
-                ? "bg-gray-800 bg-opacity-30 font-medium"
-                : "hover:bg-gray-800 hover:bg-opacity-20"
+                ? "bg-yellow-500 text-black font-medium"
+                : "hover:bg-yellow-500 hover:text-black"
             }`}
           >
-            <FaHome className="mr-3 text-white" />
+            <FaHome
+              className={`mr-3 transition ${
+                isActive("/")
+                  ? "text-black"
+                  : "text-white group-hover:text-black"
+              }`}
+            />
             <span>Home</span>
           </Link>
+
           <Link
             href="/popular"
-            className={`flex items-center px-4 py-2 rounded-md ${
+            className={`group flex items-center px-4 py-2 rounded-md transition ${
               isActive("/popular")
-                ? "bg-gray-800 bg-opacity-30 font-medium"
-                : "hover:bg-gray-800 hover:bg-opacity-20"
+                ? "bg-yellow-500 text-black font-medium"
+                : "hover:bg-yellow-500 hover:text-black"
             }`}
           >
-            <FaFire className="mr-3 text-white" />
+            <FaFire
+              className={`mr-3 transition ${
+                isActive("/popular")
+                  ? "text-black"
+                  : "text-white group-hover:text-black"
+              }`}
+            />
             <span>Popular</span>
           </Link>
+
           <Link
             href="/explore"
-            className={`flex items-center px-4 py-2 rounded-md ${
+            className={`group flex items-center px-4 py-2 rounded-md transition ${
               isActive("/explore")
-                ? "bg-gray-800 bg-opacity-30 font-medium"
-                : "hover:bg-gray-800 hover:bg-opacity-20"
+                ? "bg-yellow-500 text-black font-medium"
+                : "hover:bg-yellow-500 hover:text-black"
             }`}
           >
-            <FaCompass className="mr-3 text-white" />
+            <FaCompass
+              className={`mr-3 transition ${
+                isActive("/explore")
+                  ? "text-black"
+                  : "text-white group-hover:text-black"
+              }`}
+            />
             <span>Explore</span>
           </Link>
+
           <Link
             href="/friends"
-            className={`flex items-center px-4 py-2 rounded-md ${
+            className={`group flex items-center px-4 py-2 rounded-md transition ${
               isActive("/friends")
-                ? "bg-gray-800 bg-opacity-30 font-medium"
-                : "hover:bg-gray-800 hover:bg-opacity-20"
+                ? "bg-yellow-500 text-black font-medium"
+                : "hover:bg-yellow-500 hover:text-black"
             }`}
           >
-            <FaUserFriends className="mr-3 text-white" />
+            <FaUserFriends
+              className={`mr-3 transition ${
+                isActive("/friends")
+                  ? "text-black"
+                  : "text-white group-hover:text-black"
+              }`}
+            />
             <span>Friends</span>
           </Link>
         </div>
 
-        {/* Communities dropdown */}
+        {/* Groups dropdown */}
         <div>
           <button
-            onClick={toggleCommunitiesExpanded}
+            onClick={toggleGroupsExpanded}
             className="flex items-center justify-between w-full px-4 py-2 text-left font-medium border-t border-b border-white"
           >
-            <span>Communities</span>
-            {isCommunitiesExpanded ? (
+            <span>Groups</span>
+            {isGroupsExpanded ? (
               <FaChevronUp className="text-white" />
             ) : (
               <FaChevronDown className="text-white" />
             )}
           </button>
 
-          {isCommunitiesExpanded && (
+          {isGroupsExpanded && (
             <div className="mt-2 space-y-1 max-h-64 overflow-y-auto">
               {loading ? (
                 <div className="px-4 py-2 text-gray-300 text-sm">
@@ -125,39 +152,39 @@ export default function LeftSidebar() {
                 </div>
               ) : error ? (
                 <div className="px-4 py-2 text-red-300 text-sm">{error}</div>
-              ) : communities.length === 0 ? (
+              ) : groups.length === 0 ? (
                 <div className="px-4 py-2 text-gray-300 text-sm">
-                  No communities found
+                  No groups found
                 </div>
               ) : (
-                communities.map((community) => (
+                groups.map((group) => (
                   <Link
-                    key={community.id}
-                    href={`/r/${community.name}`}
+                    key={group.id}
+                    href={`/group/${group.name}`}
                     className="flex items-center px-4 py-2 hover:bg-gray-800 hover:bg-opacity-20 rounded-md"
                   >
                     <div
-                      className={`w-6 h-6 rounded-full ${generateCommunityColor(
-                        community.name
+                      className={`w-6 h-6 rounded-full ${generateGroupColor(
+                        group.name
                       )} flex items-center justify-center mr-2`}
                     >
                       <Image
                         src="/logo-icon.png"
-                        alt="Community"
+                        alt="Group"
                         width={12}
                         height={12}
                         className="text-white text-xs"
                       />
                     </div>
-                    <span className="truncate">r/{community.name}</span>
+                    <span className="truncate">{group.name}</span>
                   </Link>
                 ))
               )}
               <Link
-                href="/create/community"
+                href="/create/group"
                 className="flex items-center px-4 py-2 text-yellow-400 hover:bg-gray-800 hover:bg-opacity-20 rounded-md"
               >
-                <span>+ Create Community</span>
+                <span>+ Create Group</span>
               </Link>
             </div>
           )}

@@ -1,17 +1,19 @@
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
+import Button from "@/components/ui/Button";
+import { FaPlus } from "react-icons/fa";
 
-export default function CommunityAbout({ community }) {
-  // Check if community._count exists before trying to access its properties
-  const memberCount = community?._count?.members || 0;
-  const postCount = community?._count?.posts || 0;
+export default function GroupAbout({ group }) {
+  // Check if group._count exists before trying to access its properties
+  const memberCount = group?._count?.members || 0;
+  const postCount = group?._count?.posts || 0;
 
   return (
     <div className="bg-white rounded-md shadow-sm p-4">
-      <h2 className="text-lg font-semibold mb-3">About Community</h2>
+      <h2 className="text-lg font-semibold mb-3">About Group</h2>
 
-      {community.description && (
-        <p className="text-sm text-gray-700 mb-4">{community.description}</p>
+      {group.description && (
+        <p className="text-sm text-gray-700 mb-4">{group.description}</p>
       )}
 
       <div className="border-t border-gray-200 pt-3 mt-3">
@@ -33,17 +35,19 @@ export default function CommunityAbout({ community }) {
 
       <div className="border-t border-gray-200 pt-3 mt-3">
         <p className="text-xs text-gray-500">
-          Created {formatDate(community.createdAt)}
+          Created {formatDate(group.createdAt)}
         </p>
       </div>
 
       <div className="mt-4">
-        <Link
-          href={`/r/${community.name}/submit`}
-          className="block w-full bg-blue-500 text-white text-center py-2 px-4 rounded-md hover:bg-blue-600"
+        <Button
+          href={`/create/post`}
+          fullWidth
+          variant="primary"
+          icon={<FaPlus />}
         >
           Create Post
-        </Link>
+        </Button>
       </div>
     </div>
   );

@@ -87,8 +87,7 @@ export default function RegisterPage() {
 
   return (
     <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
-      <div className="flex flex-col items-center mb-6">
-        {/* Replace FaReddit with your custom logo */}
+      <div className="flex flex-col items-center-6">
         <Image
           src="/logo.png"
           alt="CardiNet Logo"

@@ -4,15 +4,18 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/components/auth/AuthContext";
 import CommentItem from "./CommentItem";
 import CommentForm from "./CommentForm";
-import { FaSpinner } from "react-icons/fa";
+import { FaComment } from "react-icons/fa";
+import Button from "@/components/ui/Button";
 
-export default function CommentSection({ postId }) {
+export default function CommentSection({ postId, groupName }) {
   const { user } = useAuth();
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const fetchComments = async () => {
+    if (!postId) return;
+
     try {
       setLoading(true);
       const response = await fetch(`/api/comments?postId=${postId}`);
@@ -35,33 +38,75 @@ export default function CommentSection({ postId }) {
     fetchComments();
   }, [postId]);
 
+  // Handle a new top-level comment
   const handleNewComment = (newComment) => {
     // Add new comment to the top of the list
-    setComments((prev) => [newComment, ...prev]);
+    setComments((prev) => [
+      {
+        ...newComment,
+        replies: [],
+        _count: { replies: 0 },
+      },
+      ...prev,
+    ]);
   };
 
-  const handleNewReply = (parentId, newReply) => {
-    // Find the parent comment and add the reply
-    setComments((prev) => {
-      return prev.map((comment) => {
-        if (comment.id === parentId) {
+  // This function recursively updates the comment tree to add a reply
+  // to the correct parent comment
+  const updateRepliesRecursively = (comments, targetParentId, newReply) => {
+    return comments.map((comment) => {
+      // If this is the target parent comment, add the reply to it
+      if (comment.id === targetParentId) {
+        return {
+          ...comment,
+          replies: [
+            ...(comment.replies || []),
+            { ...newReply, replies: [], _count: { replies: 0 } },
+          ],
+          _count: {
+            ...comment._count,
+            replies: (comment._count?.replies || 0) + 1,
+          },
+        };
+      }
+
+      // If this comment has replies, recursively check them
+      if (comment.replies && comment.replies.length > 0) {
+        const updatedReplies = updateRepliesRecursively(
+          comment.replies,
+          targetParentId,
+          newReply
+        );
+
+        // Only update this comment if one of its replies changed
+        if (
+          JSON.stringify(updatedReplies) !== JSON.stringify(comment.replies)
+        ) {
           return {
             ...comment,
-            replies: [...(comment.replies || []), newReply],
-            _count: {
-              ...comment._count,
-              replies: (comment._count.replies || 0) + 1,
-            },
+            replies: updatedReplies,
           };
         }
-        return comment;
-      });
+      }
+
+      // Return unchanged if not the target and no child replies were changed
+      return comment;
     });
+  };
+
+  // Handle a reply to any comment (top-level or nested)
+  const handleReply = (parentId, newReply) => {
+    setComments((prevComments) =>
+      updateRepliesRecursively(prevComments, parentId, newReply)
+    );
   };
 
   return (
     <div className="bg-white rounded-md shadow-sm p-4">
-      <h2 className="text-lg font-semibold mb-4">Comments</h2>
+      <h2 className="text-lg font-semibold mb-4 flex items-center">
+        <FaComment className="mr-2 text-gray-600" />
+        Comments
+      </h2>
 
       {user && (
         <div className="mb-6">
@@ -71,7 +116,7 @@ export default function CommentSection({ postId }) {
 
       {loading ? (
         <div className="flex justify-center py-8">
-          <FaSpinner className="text-gray-400 animate-spin text-xl" />
+          <Button isLoading>Loading comments</Button>
         </div>
       ) : error ? (
         <div className="bg-red-50 text-red-700 p-4 rounded-md">{error}</div>
@@ -80,9 +125,9 @@ export default function CommentSection({ postId }) {
           <p>No comments yet. Be the first to share your thoughts!</p>
           {!user && (
             <p className="mt-2 text-sm">
-              <a href="/auth/login" className="text-blue-500 hover:underline">
+              <Button href="/auth/login" variant="link">
                 Log in
-              </a>{" "}
+              </Button>{" "}
               to leave a comment.
             </p>
           )}
@@ -94,9 +139,9 @@ export default function CommentSection({ postId }) {
               key={comment.id}
               comment={comment}
               postId={postId}
-              onReplySubmitted={(newReply) =>
-                handleNewReply(comment.id, newReply)
-              }
+              groupName={groupName}
+              onReplySubmitted={handleReply}
+              depth={0}
             />
           ))}
         </div>

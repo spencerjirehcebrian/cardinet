@@ -35,8 +35,8 @@ export function calculateVoteScore(votes) {
   return votes.reduce((total, vote) => total + vote.value, 0);
 }
 
-// Generate random color for community avatar
-export function generateCommunityColor(name) {
+// Generate random color for group avatar
+export function generateGroupColor(name) {
   const colors = [
     "bg-red-500",
     "bg-blue-500",
@@ -50,7 +50,7 @@ export function generateCommunityColor(name) {
     "bg-cyan-500",
   ];
 
-  // Use the community name to deterministically select a color
+  // Use the group name to deterministically select a color
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash);

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/components/auth/AuthContext";
+import Button from "@/components/ui/Button";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -37,7 +38,8 @@ export default function LoginPage() {
       if (result.success) {
         router.push("/");
       } else {
-        setError(result.error || "Invalid credentials");
+        // Display the error message from the API
+        setError(result.error || "Login failed. Please try again.");
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");
@@ -49,7 +51,7 @@ export default function LoginPage() {
 
   return (
     <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
-      <div className="flex flex-col items-center mb-6">
+      <div className="flex flex-col items-cen mb-6">
         {/* Replace FaReddit with your custom logo */}
         <Image
           src="/logo.png"
@@ -109,21 +111,22 @@ export default function LoginPage() {
           />
         </div>
 
-        <button
+        <Button
           type="submit"
+          fullWidth
+          isLoading={isLoading}
           disabled={isLoading}
-          className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isLoading ? "Logging in..." : "Log In"}
-        </button>
+          Log In
+        </Button>
       </form>
 
       <div className="mt-4 text-center">
         <p className="text-gray-600">
           Don&apos;t have an account?{" "}
-          <Link href="/auth/register" className="text-blue-500 hover:underline">
+          <Button href="/auth/register" variant="link">
             Sign Up
-          </Link>
+          </Button>
         </p>
       </div>
     </div>

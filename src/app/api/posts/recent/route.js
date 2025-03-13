@@ -8,7 +8,6 @@ export async function GET(request) {
   const skip = (page - 1) * limit;
 
   try {
-    // Fetch the most recent posts across all communities
     const posts = await prisma.post.findMany({
       include: {
         author: {
@@ -16,7 +15,7 @@ export async function GET(request) {
             username: true,
           },
         },
-        community: {
+        group: {
           select: {
             name: true,
           },

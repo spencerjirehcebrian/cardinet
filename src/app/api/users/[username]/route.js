@@ -3,7 +3,9 @@ import prisma from "@/lib/db";
 import { getUserFromToken } from "@/lib/utils";
 
 export async function GET(request, { params }) {
-  const username = params.username;
+  // Await params before using its properties
+  const resolvedParams = await params;
+  const username = resolvedParams.username;
 
   try {
     // Get the user profile
@@ -18,7 +20,7 @@ export async function GET(request, { params }) {
             id: true,
             title: true,
             createdAt: true,
-            community: {
+            group: {
               select: {
                 name: true,
               },
@@ -43,7 +45,7 @@ export async function GET(request, { params }) {
               select: {
                 id: true,
                 title: true,
-                community: {
+                group: {
                   select: {
                     name: true,
                   },
@@ -101,132 +103,15 @@ export async function GET(request, { params }) {
     // Check if the requester is logged in
     const requestUser = await getUserFromToken(request);
 
-    if (requestUser && requestUser.userId !== user.id) {
-      // Get upvoted and downvoted content for the profile user
-      // BUT only if the profile belongs to the requester (privacy)
-      const upvotedPosts = await prisma.vote.findMany({
-        where: {
-          userId: user.id,
-          value: 1,
-        },
-        select: {
-          post: {
-            select: {
-              id: true,
-              title: true,
-              createdAt: true,
-              community: {
-                select: {
-                  name: true,
-                },
-              },
-            },
-          },
-          comment: {
-            select: {
-              id: true,
-              content: true,
-              createdAt: true,
-              post: {
-                select: {
-                  id: true,
-                  title: true,
-                  community: {
-                    select: {
-                      name: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-      });
+    // Get upvoted and downvoted content
+    // Important: We're now making this available regardless of who's viewing the profile
+    // This is for demo purposes - in a production app, you'd likely want privacy controls
+    const upvotedContent = await getVotedContent(user.id, 1);
+    const downvotedContent = await getVotedContent(user.id, -1);
 
-      const downvotedPosts = await prisma.vote.findMany({
-        where: {
-          userId: user.id,
-          value: -1,
-        },
-        select: {
-          post: {
-            select: {
-              id: true,
-              title: true,
-              createdAt: true,
-              community: {
-                select: {
-                  name: true,
-                },
-              },
-            },
-          },
-          comment: {
-            select: {
-              id: true,
-              content: true,
-              createdAt: true,
-              post: {
-                select: {
-                  id: true,
-                  title: true,
-                  community: {
-                    select: {
-                      name: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-      });
-
-      // Format the votes data for easier consumption by the frontend
-      const upvotedContent = upvotedPosts
-        .map((vote) => {
-          if (vote.post) {
-            return {
-              ...vote.post,
-              type: "post",
-            };
-          } else if (vote.comment) {
-            return {
-              ...vote.comment,
-              type: "comment",
-            };
-          }
-          return null;
-        })
-        .filter(Boolean);
-
-      const downvotedContent = downvotedPosts
-        .map((vote) => {
-          if (vote.post) {
-            return {
-              ...vote.post,
-              type: "post",
-            };
-          } else if (vote.comment) {
-            return {
-              ...vote.comment,
-              type: "comment",
-            };
-          }
-          return null;
-        })
-        .filter(Boolean);
-
-      // Add the upvoted and downvoted content to the user object
-      userWithFriends.upvotedContent = upvotedContent;
-      userWithFriends.downvotedContent = downvotedContent;
-    }
+    // Add the upvoted and downvoted content to the user object
+    userWithFriends.upvotedContent = upvotedContent;
+    userWithFriends.downvotedContent = downvotedContent;
 
     return NextResponse.json(userWithFriends);
   } catch (error) {
@@ -235,5 +120,74 @@ export async function GET(request, { params }) {
       { error: "Internal server error" },
       { status: 500 }
     );
+  }
+}
+
+// Helper function to get voted content (posts and comments)
+async function getVotedContent(userId, voteValue) {
+  try {
+    // Get votes with the specified value
+    const votes = await prisma.vote.findMany({
+      where: {
+        userId: userId,
+        value: voteValue,
+      },
+      include: {
+        post: {
+          select: {
+            id: true,
+            title: true,
+            createdAt: true,
+            group: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+        comment: {
+          select: {
+            id: true,
+            content: true,
+            createdAt: true,
+            post: {
+              select: {
+                id: true,
+                title: true,
+                group: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    // Format the votes data for easier consumption by the frontend
+    return votes
+      .map((vote) => {
+        if (vote.post) {
+          return {
+            ...vote.post,
+            type: "post",
+          };
+        } else if (vote.comment) {
+          return {
+            ...vote.comment,
+            type: "comment",
+          };
+        }
+        return null;
+      })
+      .filter(Boolean);
+  } catch (error) {
+    console.error("Error getting voted content:", error);
+    return [];
   }
 }

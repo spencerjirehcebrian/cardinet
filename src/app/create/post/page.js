@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthContext";
-import { FaSpinner } from "react-icons/fa";
+import Button from "@/components/ui/Button";
+import { FaPlus } from "react-icons/fa";
 
 export default function CreatePostPage() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -11,12 +12,12 @@ export default function CreatePostPage() {
   const [formData, setFormData] = useState({
     title: "",
     content: "",
-    communityId: "",
+    groupId: "",
   });
-  const [communities, setCommunities] = useState([]);
+  const [groups, setGroups] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
-  const [loadingCommunities, setLoadingCommunities] = useState(true);
+  const [loadingGroups, setLoadingGroups] = useState(true);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -25,28 +26,28 @@ export default function CreatePostPage() {
     }
   }, [isAuthenticated, loading, router]);
 
-  // Fetch communities
+  // Fetch groups
   useEffect(() => {
-    const fetchCommunities = async () => {
+    const fetchGroups = async () => {
       try {
-        setLoadingCommunities(true);
-        const response = await fetch("/api/communities");
+        setLoadingGroups(true);
+        const response = await fetch("/api/groups");
 
         if (!response.ok) {
-          throw new Error("Failed to fetch communities");
+          throw new Error("Failed to fetch groups");
         }
 
         const data = await response.json();
-        setCommunities(data.communities);
+        setGroups(data.groups);
       } catch (err) {
-        console.error("Error fetching communities:", err);
+        console.error("Error fetching groups:", err);
       } finally {
-        setLoadingCommunities(false);
+        setLoadingGroups(false);
       }
     };
 
     if (isAuthenticated) {
-      fetchCommunities();
+      fetchGroups();
     }
   }, [isAuthenticated]);
 
@@ -75,8 +76,8 @@ export default function CreatePostPage() {
       newErrors.title = "Title must be less than 300 characters";
     }
 
-    if (!formData.communityId) {
-      newErrors.communityId = "Please select a community";
+    if (!formData.groupId) {
+      newErrors.groupId = "Please select a group";
     }
 
     setErrors(newErrors);
@@ -109,8 +110,8 @@ export default function CreatePostPage() {
       const data = await response.json();
 
       // Redirect to the new post
-      const community = communities.find((c) => c.id === formData.communityId);
-      router.push(`/r/${community.name}/comments/${data.post.id}`);
+      const group = groups.find((g) => g.id === formData.groupId);
+      router.push(`/group/${group.name}/comments/${data.post.id}`);
     } catch (err) {
       console.error("Post creation error:", err);
       setErrors((prev) => ({
@@ -124,7 +125,7 @@ export default function CreatePostPage() {
   if (loading || !isAuthenticated) {
     return (
       <div className="flex justify-center items-center py-20">
-        <FaSpinner className="text-4xl text-gray-500 animate-spin" />
+        <Button isLoading>Loading</Button>
       </div>
     );
   }
@@ -143,35 +144,36 @@ export default function CreatePostPage() {
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label
-              htmlFor="communityId"
+              htmlFor="groupId"
               className="block text-gray-700 font-medium mb-1"
             >
-              Choose a community
+              Choose a group
             </label>
             <select
-              id="communityId"
-              name="communityId"
-              value={formData.communityId}
+              id="groupId"
+              name="groupId"
+              value={formData.groupId}
               onChange={handleChange}
               className={`w-full px-3 py-2 border ${
-                errors.communityId ? "border-red-500" : "border-gray-300"
+                errors.groupId ? "border-red-500" : "border-gray-300"
               } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
-              disabled={isSubmitting || loadingCommunities}
+              disabled={isSubmitting || loadingGroups}
             >
-              <option value="">Select a community</option>
-              {communities.map((community) => (
-                <option key={community.id} value={community.id}>
-                  r/{community.name}
+              <option value="">Select a group</option>
+              {groups.map((group) => (
+                <option key={group.id} value={group.id}>
+                  {group.name}
                 </option>
               ))}
             </select>
-            {errors.communityId && (
-              <p className="mt-1 text-red-500 text-sm">{errors.communityId}</p>
+            {errors.groupId && (
+              <p className="mt-1 text-red-500 text-sm">{errors.groupId}</p>
             )}
-            {loadingCommunities && (
+            {loadingGroups && (
               <p className="mt-1 text-gray-500 text-sm flex items-center">
-                <FaSpinner className="animate-spin mr-1" /> Loading
-                communities...
+                <Button size="sm" isLoading>
+                  Loading groups...
+                </Button>
               </p>
             )}
           </div>
@@ -220,27 +222,22 @@ export default function CreatePostPage() {
           </div>
 
           <div className="flex justify-end space-x-3">
-            <button
-              type="button"
+            <Button
+              variant="secondary"
               onClick={() => router.back()}
-              className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100"
               disabled={isSubmitting}
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
+              variant="primary"
+              icon={<FaPlus />}
+              isLoading={isSubmitting}
               disabled={isSubmitting}
-              className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? (
-                <span className="flex items-center">
-                  <FaSpinner className="animate-spin mr-2" /> Posting...
-                </span>
-              ) : (
-                "Post"
-              )}
-            </button>
+              Post
+            </Button>
           </div>
         </form>
       </div>

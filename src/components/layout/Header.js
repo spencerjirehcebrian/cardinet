@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthContext";
 import { FaSearch, FaUser, FaBars } from "react-icons/fa";
+import Button from "@/components/ui/Button";
 
 export default function Header() {
   const { user, logout } = useAuth();
@@ -19,7 +20,6 @@ export default function Header() {
       router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
-
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -85,10 +85,10 @@ export default function Header() {
                         Profile
                       </Link>
                       <Link
-                        href="/create/community"
+                        href="/create/group"
                         className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
                       >
-                        Create Community
+                        Create Group
                       </Link>
                       <button
                         onClick={logout}
@@ -102,18 +102,12 @@ export default function Header() {
               </>
             ) : (
               <div className="flex space-x-2">
-                <Link
-                  href="/auth/login"
-                  className="border border-blue-500 text-blue-500 px-4 py-1 rounded-full hover:bg-blue-50 transition"
-                >
+                <Button href="/auth/login" variant="outlined">
                   Log In
-                </Link>
-                <Link
-                  href="/auth/register"
-                  className="bg-blue-500 text-white px-4 py-1 rounded-full hover:bg-blue-600 transition"
-                >
+                </Button>
+                <Button href="/auth/register" variant="primary">
                   Sign Up
-                </Link>
+                </Button>
               </div>
             )}
           </div>
@@ -125,7 +119,7 @@ export default function Header() {
             {user ? (
               <div className="space-y-2">
                 <Link
-                  href={`/user/${user.username}`}
+                  href={`/${user.username}`}
                   className="block px-2 py-1 text-gray-700"
                 >
                   Profile
@@ -137,10 +131,10 @@ export default function Header() {
                   Create Post
                 </Link>
                 <Link
-                  href="/create/community"
+                  href="/create/group"
                   className="block px-2 py-1 text-gray-700"
                 >
-                  Create Community
+                  Create Group
                 </Link>
                 <button
                   onClick={logout}

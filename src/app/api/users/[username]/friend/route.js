@@ -4,7 +4,10 @@ import { getUserFromToken } from "@/lib/utils";
 
 export async function POST(request, { params }) {
   try {
-    const { username } = params;
+    // Await params before using its properties
+    const resolvedParams = await params;
+    const { username } = resolvedParams;
+
     const currentUser = await getUserFromToken(request);
 
     if (!currentUser) {

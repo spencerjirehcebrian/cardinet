@@ -7,22 +7,22 @@ export async function GET(request) {
 
   if (!name) {
     return NextResponse.json(
-      { error: "Community name is required" },
+      { error: "Group name is required" },
       { status: 400 }
     );
   }
 
   try {
-    const community = await prisma.community.findUnique({
+    const group = await prisma.group.findUnique({
       where: { name },
       select: { id: true },
     });
 
     return NextResponse.json({
-      exists: !!community,
+      exists: !!group,
     });
   } catch (error) {
-    console.error("Error checking community name:", error);
+    console.error("Error checking group name:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
