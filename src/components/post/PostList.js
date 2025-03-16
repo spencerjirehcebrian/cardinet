@@ -1,9 +1,10 @@
+// src/components/post/PostList.js - Updated version
 "use client";
 
 import { useState, useEffect } from "react";
 import PostItem from "./PostItem";
 import { FaSpinner } from "react-icons/fa";
-import Button from "@/components/ui/Button";
+import LoadMoreButton from "../ui/LoadMoreButton"; // Import the new component
 
 export default function PostList({ groupId = null }) {
   const [posts, setPosts] = useState([]);
@@ -52,11 +53,32 @@ export default function PostList({ groupId = null }) {
   }, [pagination.page, groupId]);
 
   const handleLoadMore = () => {
-    if (pagination.page < pagination.totalPages) {
+    if (pagination.page < pagination.totalPages && !loading) {
+      // Set loading state first to prevent multiple clicks
+      setLoading(true);
+
+      // Update the page number
       setPagination((prev) => ({
         ...prev,
         page: prev.page + 1,
       }));
+
+      // The fetch will be triggered by the useEffect watching for page changes
+
+      // After new posts are loaded, scroll to where they start
+      setTimeout(() => {
+        const loadMoreContainer = document.getElementById(
+          "load-more-container"
+        );
+        if (loadMoreContainer) {
+          const scrollPosition =
+            loadMoreContainer.offsetTop - window.innerHeight + 200;
+          window.scrollTo({
+            top: scrollPosition,
+            behavior: "smooth",
+          });
+        }
+      }, 1000); // Give time for posts to render
     }
   };
 
@@ -89,17 +111,12 @@ export default function PostList({ groupId = null }) {
         <PostItem key={post.id} post={post} />
       ))}
 
-      {pagination.page < pagination.totalPages && (
-        <div className="flex justify-center py-4">
-          <Button
-            variant="secondary"
-            onClick={handleLoadMore}
-            isLoading={loading}
-          >
-            Load More
-          </Button>
-        </div>
-      )}
+      {/* Replace the old button with the new LoadMoreButton component */}
+      <LoadMoreButton
+        onClick={handleLoadMore}
+        isLoading={loading}
+        hasMore={pagination.page < pagination.totalPages}
+      />
     </div>
   );
 }

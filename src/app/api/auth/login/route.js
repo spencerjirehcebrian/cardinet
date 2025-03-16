@@ -55,7 +55,7 @@ export async function POST(request) {
     // Create JWT token
     const token = sign(
       { userId: user.id, username: user.username },
-      process.env.JWT_SECRET || "reddit-clone-secret-key",
+      process.env.JWT_SECRET || "cardinet-secret-key",
       { expiresIn: "7d" }
     );
 

@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/components/auth/AuthContext";
 import { generateGroupColor } from "@/lib/utils";
 import Button from "@/components/ui/Button";
 import GroupImageUpload from "@/components/group/GroupImageUpload";
+
 export default function GroupHeader({
   group,
   activeTab = "posts",
@@ -14,8 +15,46 @@ export default function GroupHeader({
 }) {
   const { user } = useAuth();
   const [isJoined, setIsJoined] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
   const [memberCount, setMemberCount] = useState(group._count.members);
   const [isLoading, setIsLoading] = useState(false);
+  const [isCheckingMembership, setIsCheckingMembership] = useState(true);
+
+  // Check if the current user is the owner or a member of the group
+  useEffect(() => {
+    if (!user) {
+      setIsCheckingMembership(false);
+      return;
+    }
+
+    // Check if user is the owner
+    if (group.owner.username === user.username) {
+      setIsOwner(true);
+      setIsJoined(true);
+      setIsCheckingMembership(false);
+      return;
+    }
+
+    // Check if the user is already a member
+    const checkMembership = async () => {
+      try {
+        setIsCheckingMembership(true);
+        // You would need to create this endpoint to check membership
+        const response = await fetch(`/api/groups/${group.id}/membership`);
+
+        if (response.ok) {
+          const data = await response.json();
+          setIsJoined(data.isMember);
+        }
+      } catch (error) {
+        console.error("Error checking membership:", error);
+      } finally {
+        setIsCheckingMembership(false);
+      }
+    };
+
+    checkMembership();
+  }, [user, group.id, group.owner.username]);
 
   const handleJoinGroup = async () => {
     if (!user) {
@@ -23,8 +62,8 @@ export default function GroupHeader({
       return;
     }
 
-    // Check if the current user is the owner of the group
-    if (group.owner.username === user.username) {
+    // Skip if user is the owner
+    if (isOwner) {
       return;
     }
 
@@ -91,13 +130,23 @@ export default function GroupHeader({
                 </p>
               </div>
 
-              <Button
-                onClick={handleJoinGroup}
-                variant={isJoined ? "outlined" : "primary"}
-                isLoading={isLoading}
-              >
-                {isJoined ? "Joined" : "Join"}
-              </Button>
+              {/* Only show join/leave button if user is not the owner */}
+              {!isOwner && user && !isCheckingMembership && (
+                <Button
+                  onClick={handleJoinGroup}
+                  variant={isJoined ? "outlined" : "primary"}
+                  isLoading={isLoading}
+                >
+                  {isJoined ? "Leave" : "Join"}
+                </Button>
+              )}
+
+              {/* Show "Owner" badge if user is the owner */}
+              {isOwner && user && (
+                <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
+                  Owner
+                </div>
+              )}
             </div>
           </div>
         </div>

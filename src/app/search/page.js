@@ -1,14 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { useSearchParams } from "next/navigation";
-import { FaSpinner, FaArrowUp, FaComment } from "react-icons/fa";
+import { FaSpinner, FaArrowUp, FaComment, FaUserPlus } from "react-icons/fa";
 import { formatRelativeTime, generateGroupColor } from "@/lib/utils";
+import UserAvatar from "@/components/ui/UserAvatar";
+import GroupAvatar from "@/components/ui/GroupAvatar";
+import Button from "@/components/ui/Button";
 
 export default function SearchPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const query = searchParams.get("q") || "";
 
   const [groups, setGroups] = useState([]);
@@ -17,6 +21,14 @@ export default function SearchPage() {
   const [activeTab, setActiveTab] = useState("groups");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Function to check which tab should be active initially
+  const determineInitialActiveTab = (groupCount, postCount, userCount) => {
+    if (groupCount > 0) return "groups";
+    if (postCount > 0) return "posts";
+    if (userCount > 0) return "users";
+    return "groups"; // Default
+  };
 
   useEffect(() => {
     if (!query.trim()) {
@@ -27,45 +39,52 @@ export default function SearchPage() {
     const fetchResults = async () => {
       try {
         setLoading(true);
+        setError(null);
 
         // Fetch groups matching the query
-        const groupsResponse = await fetch(`/api/groups?search=${query}`);
-
+        const groupsResponse = await fetch(
+          `/api/groups?search=${encodeURIComponent(query)}`
+        );
         if (!groupsResponse.ok) {
-          throw new Error("Failed to fetch groups");
+          throw new Error(
+            `Groups fetch failed with status: ${groupsResponse.status}`
+          );
         }
-
         const groupsData = await groupsResponse.json();
-        setGroups(groupsData.groups);
+        setGroups(groupsData.groups || []);
 
         // Fetch posts matching the query
-        const postsResponse = await fetch(`/api/posts/search?q=${query}`);
-
+        const postsResponse = await fetch(
+          `/api/posts/search?q=${encodeURIComponent(query)}`
+        );
         if (!postsResponse.ok) {
-          throw new Error("Failed to fetch posts");
+          throw new Error(
+            `Posts fetch failed with status: ${postsResponse.status}`
+          );
         }
-
         const postsData = await postsResponse.json();
-        setPosts(postsData.posts);
+        setPosts(postsData.posts || []);
 
         // Fetch users matching the query
-        const usersResponse = await fetch(`/api/users/search?q=${query}`);
-
+        const usersResponse = await fetch(
+          `/api/users/search?q=${encodeURIComponent(query)}`
+        );
         if (!usersResponse.ok) {
-          throw new Error("Failed to fetch users");
+          throw new Error(
+            `Users fetch failed with status: ${usersResponse.status}`
+          );
         }
-
         const usersData = await usersResponse.json();
-        setUsers(usersData.users);
+        setUsers(usersData.users || []);
 
         // Set default active tab based on results
-        if (groupsData.groups.length === 0) {
-          if (postsData.posts.length > 0) {
-            setActiveTab("posts");
-          } else if (usersData.users.length > 0) {
-            setActiveTab("users");
-          }
-        }
+        setActiveTab(
+          determineInitialActiveTab(
+            groupsData.groups?.length || 0,
+            postsData.posts?.length || 0,
+            usersData.users?.length || 0
+          )
+        );
       } catch (err) {
         console.error("Search error:", err);
         setError("Failed to perform search. Please try again later.");
@@ -77,12 +96,17 @@ export default function SearchPage() {
     fetchResults();
   }, [query]);
 
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+  };
+
   if (!query.trim()) {
     return (
       <div className="max-w-4xl mx-auto text-center py-16">
         <h1 className="text-2xl font-bold mb-4">Search CardiNet</h1>
         <p className="text-gray-600">
-          Enter a search term in the search box above to find groups and posts.
+          Enter a search term in the search box above to find groups, posts, and
+          users.
         </p>
       </div>
     );
@@ -91,7 +115,7 @@ export default function SearchPage() {
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto flex justify-center py-16">
-        <FaSpinner className="text-3xl text-gray-500 animate-spin" />
+        <FaSpinner className="text-3xl text-white animate-spin" />
       </div>
     );
   }
@@ -109,13 +133,15 @@ export default function SearchPage() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Search results for: "{query}"</h1>
+      <h1 className="text-2xl font-bold mb-6 text-white">
+        Search results for: "{query}"
+      </h1>
 
       {noResults ? (
         <div className="bg-white rounded-md shadow-sm p-8 text-center">
           <h2 className="text-lg font-semibold mb-2">No results found</h2>
           <p className="text-gray-600">
-            We couldn't find any groups or posts matching your search.
+            We couldn't find any groups, posts, or users matching your search.
           </p>
         </div>
       ) : (
@@ -124,30 +150,30 @@ export default function SearchPage() {
           <div className="bg-white rounded-md shadow-sm mb-6">
             <div className="flex border-b border-gray-200">
               <button
-                onClick={() => setActiveTab("groups")}
+                onClick={() => handleTabChange("groups")}
                 className={`px-4 py-2 font-medium ${
                   activeTab === "groups"
-                    ? "text-blue-500 border-b-2 border-blue-500"
+                    ? "text-yellow-500 border-b-2 border-yellow-500"
                     : "text-gray-500 hover:text-gray-700"
                 }`}
               >
                 Groups ({groups.length})
               </button>
               <button
-                onClick={() => setActiveTab("posts")}
+                onClick={() => handleTabChange("posts")}
                 className={`px-4 py-2 font-medium ${
                   activeTab === "posts"
-                    ? "text-blue-500 border-b-2 border-blue-500"
+                    ? "text-yellow-500 border-b-2 border-yellow-500"
                     : "text-gray-500 hover:text-gray-700"
                 }`}
               >
                 Posts ({posts.length})
               </button>
               <button
-                onClick={() => setActiveTab("users")}
+                onClick={() => handleTabChange("users")}
                 className={`px-4 py-2 font-medium ${
                   activeTab === "users"
-                    ? "text-blue-500 border-b-2 border-blue-500"
+                    ? "text-yellow-500 border-b-2 border-yellow-500"
                     : "text-gray-500 hover:text-gray-700"
                 }`}
               >
@@ -170,27 +196,23 @@ export default function SearchPage() {
                         href={`/group/${group.name}`}
                         className="flex items-center p-3 hover:bg-gray-50 rounded-md border border-gray-200"
                       >
-                        <div
-                          className={`w-10 h-10 rounded-full ${generateGroupColor(
-                            group.name
-                          )} flex items-center justify-center mr-3`}
-                        >
-                          {/* Replace FaReddit with your custom logo icon */}
-                          <Image
-                            src="/logo-icon.png"
-                            alt="Group"
-                            width={20}
-                            height={20}
-                            className="text-white text-xl"
-                          />
-                        </div>
-                        <div>
+                        <GroupAvatar
+                          groupId={group.id}
+                          groupName={group.name}
+                          size={40}
+                          className="mr-3"
+                        />
+                        <div className="flex-1">
                           <h3 className="font-medium">{group.name}</h3>
                           <p className="text-sm text-gray-500">
-                            {group._count.members}{" "}
-                            {group._count.members === 1 ? "member" : "members"}{" "}
-                            • {group._count.posts}{" "}
-                            {group._count.posts === 1 ? "post" : "posts"}
+                            {group._count?.members || 0}{" "}
+                            {(group._count?.members || 0) === 1
+                              ? "member"
+                              : "members"}{" "}
+                            • {group._count?.posts || 0}{" "}
+                            {(group._count?.posts || 0) === 1
+                              ? "post"
+                              : "posts"}
                           </p>
                           {group.description && (
                             <p className="text-sm text-gray-700 mt-1">
@@ -226,7 +248,7 @@ export default function SearchPage() {
                           </Link>{" "}
                           by{" "}
                           <Link
-                            href={`/${post.author.username}`}
+                            href={`/user/${post.author.username}`}
                             className="hover:underline"
                           >
                             {post.author.username}
@@ -272,13 +294,15 @@ export default function SearchPage() {
                     users.map((user) => (
                       <Link
                         key={user.id}
-                        href={`/${user.username}`}
+                        href={`/user/${user.username}`}
                         className="flex items-center p-3 hover:bg-gray-50 rounded-md border border-gray-200"
                       >
-                        <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold mr-3">
-                          {user.username.slice(0, 1).toUpperCase()}
-                        </div>
-                        <div>
+                        <UserAvatar
+                          username={user.username}
+                          size={40}
+                          className="mr-3"
+                        />
+                        <div className="flex-1">
                           <h3 className="font-medium">{user.username}</h3>
                           <p className="text-sm text-gray-500">
                             {user.createdAt &&
@@ -288,11 +312,18 @@ export default function SearchPage() {
                           </p>
                           <div className="flex items-center text-xs text-gray-500 mt-1">
                             <span className="mr-3">
-                              {user._count.posts} posts
+                              {user._count?.posts || 0} posts
                             </span>
-                            <span>{user._count.comments} comments</span>
+                            <span>{user._count?.comments || 0} comments</span>
                           </div>
                         </div>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          icon={<FaUserPlus />}
+                        >
+                          Follow
+                        </Button>
                       </Link>
                     ))
                   )}

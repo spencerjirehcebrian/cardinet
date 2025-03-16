@@ -18,6 +18,7 @@ export default function CreateGroupPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [nameAvailable, setNameAvailable] = useState(null);
   const [isCheckingName, setIsCheckingName] = useState(false);
+  const [submissionError, setSubmissionError] = useState(null);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -88,7 +89,18 @@ export default function CreateGroupPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Clear any previous errors
+    setSubmissionError(null);
+
     if (!validateForm()) {
+      return;
+    }
+
+    // Don't submit if the name is unavailable
+    if (nameAvailable === false) {
+      setErrors({
+        name: "This group name is already taken. Please choose another.",
+      });
       return;
     }
 
@@ -113,14 +125,15 @@ export default function CreateGroupPage() {
 
       const data = await response.json();
 
-      // Redirect to the new group WITH a refresh query parameter
-      router.push(`/group/${data.group.name}?refresh=${Date.now()}`); // Add this line
+      // Set a timeout to handle navigation
+      setTimeout(() => {
+        router.push(`/group/${data.group.name}?refresh=${Date.now()}`);
+      }, 100);
     } catch (error) {
       console.error("Group creation error:", error);
-      setErrors((prev) => ({
-        ...prev,
-        form: error.message || "Failed to create group. Please try again.",
-      }));
+      setSubmissionError(
+        error.message || "Failed to create group. Please try again."
+      );
       setIsSubmitting(false);
     }
   };
@@ -151,9 +164,9 @@ export default function CreateGroupPage() {
           <h1 className="text-2xl font-bold">Create a Group</h1>
         </div>
 
-        {errors.form && (
+        {submissionError && (
           <div className="mb-6 p-3 bg-red-100 text-red-700 rounded-md">
-            {errors.form}
+            {submissionError}
           </div>
         )}
 
@@ -239,14 +252,9 @@ export default function CreateGroupPage() {
             <Button
               type="submit"
               disabled={isSubmitting || nameAvailable === false}
+              isLoading={isSubmitting}
             >
-              {isSubmitting ? (
-                <span className="flex items-center">
-                  <FaSpinner className="animate-spin mr-2" /> Creating...
-                </span>
-              ) : (
-                "Create Group"
-              )}
+              {isSubmitting ? "Creating..." : "Create Group"}
             </Button>
           </div>
         </form>

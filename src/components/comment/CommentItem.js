@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useAuth } from "@/components/auth/AuthContext";
 import { formatRelativeTime } from "@/lib/utils";
 import CommentForm from "./CommentForm";
 import { FaArrowUp, FaArrowDown, FaReply } from "react-icons/fa";
 import Button from "@/components/ui/Button";
+import UserAvatar from "@/components/ui/UserAvatar";
 
 export default function CommentItem({
   comment,
@@ -196,18 +196,7 @@ export default function CommentItem({
               href={`/user/${comment.author.username}`}
               className="flex items-center mr-2"
             >
-              <div className="w-7 h-7 rounded-full overflow-hidden bg-blue-500 mr-1 flex-shrink-0">
-                <Image
-                  src={`/api/users/${comment.author.username}/image`}
-                  alt={comment.author.username}
-                  width={30}
-                  height={30}
-                  className="object-cover"
-                  onError={(e) => {
-                    e.target.src = "/logo.png";
-                  }}
-                />
-              </div>
+              <UserAvatar username={comment.author.username} size={28} />
               <span className="font-medium text-gray-900 hover:underline pl-1">
                 {comment.author.username}
               </span>

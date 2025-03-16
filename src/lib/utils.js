@@ -12,7 +12,7 @@ export function getUserFromToken(request) {
   try {
     const decoded = verify(
       token,
-      process.env.JWT_SECRET || "reddit-clone-secret-key"
+      process.env.JWT_SECRET || "cardinet-secret-key"
     );
     return decoded;
   } catch (error) {

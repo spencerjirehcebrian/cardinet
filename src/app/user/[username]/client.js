@@ -13,7 +13,7 @@ import {
 import { formatDate, formatRelativeTime } from "@/lib/utils";
 import Button from "@/components/ui/Button";
 import ProfileImageUpload from "@/components/user/ProfileImageUpload";
-import Image from "next/image";
+import UserAvatar from "@/components/ui/UserAvatar";
 
 export default function UserProfileClient({ params }) {
   const { username } = params;
@@ -446,25 +446,11 @@ export default function UserProfileClient({ params }) {
                     href={`/user/${friend.username}`}
                     className="flex items-center p-2 hover:bg-gray-100 rounded-md mr-2"
                   >
-                    <div className="w-10 h-10 rounded-full overflow-hidden bg-blue-500 mr-2 flex-shrink-0">
-                      <Image
-                        src={`/api/users/${friend.username}/image`}
-                        alt={friend.username}
-                        width={50}
-                        height={50}
-                        className="object-cover"
-                        onError={(e) => {
-                          // Fallback to default logo
-                          e.target.src = "/logo.png";
-                          e.target.style.display = "block";
-                          e.target.parentNode.className =
-                            e.target.parentNode.className.replace(
-                              /flex items-center justify-center text-white text-xs font-bold/g,
-                              ""
-                            );
-                        }}
-                      />
-                    </div>
+                    <UserAvatar
+                      username={friend.username}
+                      size={40}
+                      className="mr-2"
+                    />
                     <span className="font-medium text-gray-900 hover:underline pl-1">
                       {friend.username}
                     </span>

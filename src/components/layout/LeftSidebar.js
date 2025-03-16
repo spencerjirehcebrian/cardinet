@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   FaHome,
@@ -12,7 +11,7 @@ import {
   FaChevronDown,
   FaChevronUp,
 } from "react-icons/fa";
-import { generateGroupColor } from "@/lib/utils";
+import GroupAvatar from "@/components/ui/GroupAvatar";
 
 export default function LeftSidebar() {
   const [groups, setGroups] = useState([]);
@@ -50,10 +49,6 @@ export default function LeftSidebar() {
 
   const isActive = (path) => {
     return pathname === path;
-  };
-
-  const getGroupImageUrl = (groupId) => {
-    return `/api/groups/${groupId}/image?t=${new Date().getTime()}`;
   };
 
   return (
@@ -171,23 +166,12 @@ export default function LeftSidebar() {
                         : "hover:bg-yellow-500 hover:text-black"
                     }`}
                   >
-                    <div className="relative w-8 h-8 rounded-full overflow-hidden mr-2 flex-shrink-0">
-                      <div
-                        className={`absolute inset-0 ${generateGroupColor(
-                          group.name
-                        )}`}
-                      />
-                      <Image
-                        src={getGroupImageUrl(group.id)}
-                        alt={group.name}
-                        fill
-                        sizes="32px"
-                        className="object-cover"
-                        onError={(e) => {
-                          e.target.src = "/logo.png";
-                        }}
-                      />
-                    </div>
+                    <GroupAvatar
+                      groupId={group.id}
+                      groupName={group.name}
+                      size={32}
+                      className="mr-2"
+                    />
                     <span className="truncate">{group.name}</span>
                   </Link>
                 ))

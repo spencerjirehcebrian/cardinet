@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/components/auth/AuthContext";
-import { formatRelativeTime, getUserImageUrl } from "@/lib/utils";
-import { FaArrowUp, FaArrowDown, FaComments, FaShare } from "react-icons/fa";
+import { formatRelativeTime } from "@/lib/utils";
+import { FaArrowUp, FaArrowDown, FaComments } from "react-icons/fa";
+import UserAvatar from "@/components/ui/UserAvatar";
+import GroupAvatar from "@/components/ui/GroupAvatar";
 
 export default function PostItem({ post, isDetailView = false }) {
   const { user } = useAuth();
@@ -155,33 +156,39 @@ export default function PostItem({ post, isDetailView = false }) {
 
         {/* Post content */}
         <div className="p-3 flex-grow">
-          {/* Post header with user info first */}
-          <div className="text-xs text-gray-500 mb-2 flex items-center">
-            <Link
-              href={authorLink}
-              className="flex items-center text-xs hover:underline mr-2"
-            >
-              <div className="w-15 h-15 rounded-full overflow-hidden bg-blue-500 mr-1 flex-shrink-0">
-                <Image
-                  src={`/api/users/${post.author.username}/image`}
-                  alt={post.author.username}
-                  width={70}
-                  height={70}
-                  className="object-cover"
-                  onError={(e) => {
-                    e.target.src = "/logo.png";
-                  }}
+          {/* Post header with user info and group in a properly aligned row */}
+          <div className="text-xs text-gray-500 mb-3 flex flex-wrap items-center">
+            <div className="flex items-center mr-3">
+              <UserAvatar
+                username={post.author.username}
+                size={36}
+                className="mr-2"
+              />
+              <Link
+                href={authorLink}
+                className="font-medium hover:underline text-sm"
+              >
+                {post.author.username}
+              </Link>
+            </div>
+            <span className="mx-1">•</span>
+            <div className="flex items-center">
+              <span>Posted in</span>
+              <Link
+                href={groupLink}
+                className="flex items-center hover:underline text-blue-500 ml-1"
+              >
+                <GroupAvatar
+                  groupId={post.group.id}
+                  groupName={post.group.name}
+                  size={16}
+                  className="mr-1"
                 />
-              </div>
-              <span className="font-medium pl-2">{post.author.username}</span>
-            </Link>
-            <span className="text-gray-500">
-              • Posted in{" "}
-              <Link href={groupLink} className="hover:underline text-blue-500">
-                {post.group.name}
-              </Link>{" "}
-              {formatRelativeTime(post.createdAt)}
-            </span>
+                <span>{post.group.name}</span>
+              </Link>
+            </div>
+            <span className="mx-1">•</span>
+            <span>{formatRelativeTime(post.createdAt)}</span>
           </div>
 
           {/* Post title */}
@@ -218,7 +225,7 @@ export default function PostItem({ post, isDetailView = false }) {
           <div className="flex items-center text-gray-500 text-sm mt-2">
             <Link
               href={postLink}
-              className="flex items-center mr-4 hover:bg-gray-100 p-1 rounded"
+              className="flex items-center hover:bg-gray-100 p-1 rounded"
             >
               <FaComments className="mr-1" />
               <span>{post._count?.comments || 0} Comments</span>

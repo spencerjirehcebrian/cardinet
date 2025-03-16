@@ -21,10 +21,22 @@ export async function GET(request) {
     let whereClause = {};
 
     if (search) {
+      // Improved search with case-insensitive option
       whereClause = {
-        name: {
-          contains: search,
-        },
+        OR: [
+          {
+            name: {
+              contains: search,
+              mode: "insensitive", // Add this for case-insensitive search
+            },
+          },
+          {
+            description: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+        ],
       };
     }
 
@@ -35,6 +47,11 @@ export async function GET(request) {
           select: {
             members: true,
             posts: true,
+          },
+        },
+        owner: {
+          select: {
+            username: true,
           },
         },
       },

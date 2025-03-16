@@ -7,19 +7,34 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthContext";
 import { FaSearch, FaUser, FaBars, FaPlus } from "react-icons/fa";
 import Button from "@/components/ui/Button";
+import UserAvatar from "@/components/ui/UserAvatar";
 
 export default function Header() {
   const { user, logout } = useAuth();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
 
   const handleSearch = (e) => {
     e.preventDefault();
+
     if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setIsSearching(true);
+
+      // Use encodeURIComponent to properly handle special characters in the query
+      const query = encodeURIComponent(searchQuery.trim());
+
+      // Navigate to the search page with the encoded query
+      router.push(`/search?q=${query}`);
+
+      // Reset searching state after navigation
+      setTimeout(() => {
+        setIsSearching(false);
+      }, 300);
     }
   };
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -47,12 +62,24 @@ export default function Header() {
             <div className="relative">
               <input
                 type="text"
-                placeholder="Search"
+                placeholder="Search groups, posts, or users..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full py-1 px-3 pl-10 border border-gray-300 rounded-full bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:bg-white"
+                disabled={isSearching}
               />
-              <FaSearch className="absolute left-3 top-2 text-gray-400" />
+              <button
+                type="submit"
+                className="absolute left-3 top-2 text-gray-400 hover:text-gray-600"
+                disabled={isSearching}
+              >
+                <FaSearch />
+              </button>
+              {isSearching && (
+                <div className="absolute right-3 top-2 text-yellow-500">
+                  <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
+                </div>
+              )}
             </div>
           </form>
 
@@ -73,8 +100,8 @@ export default function Header() {
                   Create Post
                 </Button>
                 <div className="relative group">
-                  <button className="flex items-center space-x-1 text-white hover:text-yellow-400">
-                    <FaUser />
+                  <button className="flex items-center space-x-2 text-white hover:text-yellow-400">
+                    <UserAvatar username={user.username} size={32} />
                     <span>{user.username}</span>
                   </button>
                   {/* Modified dropdown to reduce gap and add connecting area */}
@@ -130,8 +157,13 @@ export default function Header() {
               <div className="space-y-2">
                 <Link
                   href={`/user/${user.username}`}
-                  className="block px-2 py-1 text-white"
+                  className="flex items-center px-2 py-1 text-white"
                 >
+                  <UserAvatar
+                    username={user.username}
+                    size={24}
+                    className="mr-2"
+                  />
                   Profile
                 </Link>
                 <Link
