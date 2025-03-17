@@ -37,3 +37,5 @@ pnpm-debug.log*
 
 # Optional: Ignore Next.js cache
 .next/cache/
+
+repomix-output.txt
