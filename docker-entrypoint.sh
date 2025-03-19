@@ -5,7 +5,7 @@ mkdir -p /app/prisma/data
 
 # Set the DATABASE_URL environment variable if not already set
 if [ -z "$DATABASE_URL" ]; then
-    export DATABASE_URL="file:/app/prisma/data/reddit-clone.db"
+    export DATABASE_URL="file:/app/prisma/data/cardinet.db"
 fi
 
 # First make sure the database structure exists

@@ -48,3 +48,6 @@ prisma/data/
 
 # Docker volumes
 docker-volumes/
+
+.env
+env

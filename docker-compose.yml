@@ -8,7 +8,7 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=file:/app/prisma/data/reddit-clone.db
+      - DATABASE_URL=file:/app/prisma/data/cardinet.db
       - JWT_SECRET=your-secure-jwt-secret-change-this
       - SEED_DATABASE=true
       - NEXT_PUBLIC_SITE_URL=http://localhost:3000
