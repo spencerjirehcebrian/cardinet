@@ -16,19 +16,18 @@ export async function GET(request) {
   }
 
   try {
+    // For SQLite, we'll simplify the search by using contains without mode
     const users = await prisma.user.findMany({
       where: {
         OR: [
           {
             username: {
               contains: query,
-              mode: "insensitive",
             },
           },
           {
             email: {
               contains: query,
-              mode: "insensitive",
             },
           },
         ],
@@ -60,21 +59,28 @@ export async function GET(request) {
           {
             username: {
               contains: query,
-              mode: "insensitive",
             },
           },
           {
             email: {
               contains: query,
-              mode: "insensitive",
             },
           },
         ],
       },
     });
 
+    // Process users to add total friends count
+    const processedUsers = users.map((user) => ({
+      ...user,
+      _count: {
+        ...user._count,
+        friends: user._count.friendsAdded + user._count.friendsOf,
+      },
+    }));
+
     return NextResponse.json({
-      users,
+      users: processedUsers,
       pagination: {
         page,
         limit,

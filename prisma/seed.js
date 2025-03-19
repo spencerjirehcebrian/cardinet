@@ -1,6 +1,9 @@
 const { PrismaClient } = require("@prisma/client");
 const bcrypt = require("bcryptjs");
 const { faker } = require("@faker-js/faker");
+const fs = require("fs");
+const path = require("path");
+const sharp = require("sharp");
 
 const prisma = new PrismaClient();
 
@@ -17,6 +20,38 @@ const MAX_FRIENDSHIPS_PER_USER = 10;
 const USERS_PER_GROUP_MIN = 5;
 const USERS_PER_GROUP_MAX = 20;
 const SALT_ROUNDS = 10;
+
+// Helper function to get random sample image buffer
+async function getRandomImageBuffer() {
+  // Create an array of image paths
+  const imagePaths = [
+    path.join(__dirname, "../public/sample-images/profile1.png"),
+    path.join(__dirname, "../public/sample-images/profile2.png"),
+    path.join(__dirname, "../public/sample-images/profile3.png"),
+    path.join(__dirname, "../public/sample-images/profile4.png"),
+    path.join(__dirname, "../public/sample-images/profile5.png"),
+  ];
+
+  // Select a random image path
+  const randomImagePath =
+    imagePaths[Math.floor(Math.random() * imagePaths.length)];
+
+  try {
+    // Read the image file
+    const imageBuffer = fs.readFileSync(randomImagePath);
+
+    // Process and optimize the image using sharp
+    const processedImageBuffer = await sharp(imageBuffer)
+      .resize(400, 400, { fit: "cover" })
+      .webp({ quality: 80 })
+      .toBuffer();
+
+    return processedImageBuffer;
+  } catch (error) {
+    console.error("Error processing sample image:", error);
+    return null;
+  }
+}
 
 // Helper function to generate a random number between min and max
 const getRandomInt = (min, max) => {
@@ -37,7 +72,7 @@ const hashPassword = async (password) => {
 
 // University-specific data
 const departments = [
-  "Computer Science",
+  "Computer-Science",
   "Engineering",
   "Business",
   "Arts",
@@ -46,7 +81,7 @@ const departments = [
   "Architecture",
   "Education",
   "Science",
-  "Social Sciences",
+  "Social-Sciences",
   "Mathematics",
   "Physics",
   "Chemistry",
@@ -107,6 +142,9 @@ async function main() {
 
   // Create an admin user with a known password
   const adminPasswordHash = await hashPassword("adminpassword");
+  // Get random profile image for admin
+  const adminProfileImage = await getRandomImageBuffer();
+
   const admin = await prisma.user.create({
     data: {
       username: "admin",
@@ -114,6 +152,7 @@ async function main() {
       passwordHash: adminPasswordHash,
       birthday: faker.date.past({ years: 25 }),
       phoneNumber: faker.phone.number(),
+      profileImage: adminProfileImage,
     },
   });
   users.push(admin);
@@ -123,8 +162,12 @@ async function main() {
     const firstName = faker.person.firstName();
     const lastName = faker.person.lastName();
     const username = faker.internet
-      .userName({ firstName, lastName })
+      .username({ firstName, lastName })
       .toLowerCase();
+
+    // Add profile image with 70% probability
+    const profileImage =
+      Math.random() > 0.3 ? await getRandomImageBuffer() : null;
 
     const user = await prisma.user.create({
       data: {
@@ -135,6 +178,7 @@ async function main() {
         phoneNumber: faker.helpers.maybe(() => faker.phone.number(), {
           probability: 0.7,
         }),
+        profileImage,
       },
     });
     users.push(user);
@@ -179,11 +223,16 @@ async function main() {
   // University department groups
   for (let i = 0; i < departments.length && i < NUM_GROUPS; i++) {
     const owner = users[getRandomInt(0, users.length - 1)];
+    // Add group image with 70% probability
+    const groupImage =
+      Math.random() > 0.3 ? await getRandomImageBuffer() : null;
+
     const group = await prisma.group.create({
       data: {
         name: departments[i],
         description: `Discussion forum for the ${departments[i]} department`,
         ownerId: owner.id,
+        groupImage,
       },
     });
     groups.push(group);
@@ -201,11 +250,16 @@ async function main() {
     for (let i = 0; i < remainingGroups && i < groupThemes.length; i++) {
       const owner = users[getRandomInt(0, users.length - 1)];
       const theme = groupThemes[i];
+      // Add group image with 70% probability
+      const groupImage =
+        Math.random() > 0.3 ? await getRandomImageBuffer() : null;
+
       const group = await prisma.group.create({
         data: {
           name: theme,
           description: `Discussions related to ${theme} at the university`,
           ownerId: owner.id,
+          groupImage,
         },
       });
       groups.push(group);

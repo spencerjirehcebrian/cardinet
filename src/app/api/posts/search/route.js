@@ -16,19 +16,19 @@ export async function GET(request) {
   }
 
   try {
+    // Build a search query that will work with SQLite
+    // SQLite doesn't support the 'mode' parameter, so we just use 'contains'
     const posts = await prisma.post.findMany({
       where: {
         OR: [
           {
             title: {
               contains: query,
-              mode: "insensitive",
             },
           },
           {
             content: {
               contains: query,
-              mode: "insensitive",
             },
           },
         ],
@@ -51,12 +51,23 @@ export async function GET(request) {
             votes: true,
           },
         },
+        votes: true,
       },
       orderBy: {
         createdAt: "desc",
       },
       skip,
       take: limit,
+    });
+
+    // Calculate vote scores for each post
+    const postsWithScores = posts.map((post) => {
+      const score = post.votes.reduce((acc, vote) => acc + vote.value, 0);
+      const { votes, ...postWithoutVotes } = post;
+      return {
+        ...postWithoutVotes,
+        score,
+      };
     });
 
     // Calculate total count for pagination
@@ -66,13 +77,11 @@ export async function GET(request) {
           {
             title: {
               contains: query,
-              mode: "insensitive",
             },
           },
           {
             content: {
               contains: query,
-              mode: "insensitive",
             },
           },
         ],
@@ -80,7 +89,7 @@ export async function GET(request) {
     });
 
     return NextResponse.json({
-      posts,
+      posts: postsWithScores,
       pagination: {
         page,
         limit,

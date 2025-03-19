@@ -39,3 +39,12 @@ pnpm-debug.log*
 .next/cache/
 
 repomix-output.txt
+
+# Database files
+prisma/data/
+
+# Environment variables
+.env
+
+# Docker volumes
+docker-volumes/

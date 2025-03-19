@@ -5,35 +5,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthContext";
-import { FaSearch, FaUser, FaBars, FaPlus } from "react-icons/fa";
+import { FaBars, FaPlus } from "react-icons/fa";
 import Button from "@/components/ui/Button";
 import UserAvatar from "@/components/ui/UserAvatar";
+import HeaderSearch from "./HeaderSearch";
 
 export default function Header() {
   const { user, logout } = useAuth();
-  const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-
-    if (searchQuery.trim()) {
-      setIsSearching(true);
-
-      // Use encodeURIComponent to properly handle special characters in the query
-      const query = encodeURIComponent(searchQuery.trim());
-
-      // Navigate to the search page with the encoded query
-      router.push(`/search?q=${query}`);
-
-      // Reset searching state after navigation
-      setTimeout(() => {
-        setIsSearching(false);
-      }, 300);
-    }
-  };
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -57,31 +36,10 @@ export default function Header() {
             </span>
           </Link>
 
-          {/* Search Bar */}
-          <form onSubmit={handleSearch} className="flex-grow max-w-xl mx-4">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search groups, posts, or users..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full py-1 px-3 pl-10 border border-gray-300 rounded-full bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:bg-white"
-                disabled={isSearching}
-              />
-              <button
-                type="submit"
-                className="absolute left-3 top-2 text-gray-400 hover:text-gray-600"
-                disabled={isSearching}
-              >
-                <FaSearch />
-              </button>
-              {isSearching && (
-                <div className="absolute right-3 top-2 text-yellow-500">
-                  <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
-                </div>
-              )}
-            </div>
-          </form>
+          {/* Search Bar - Using our new HeaderSearch component */}
+          <div className="flex-grow max-w-xl mx-4">
+            <HeaderSearch />
+          </div>
 
           {/* Mobile Menu Button */}
           <button

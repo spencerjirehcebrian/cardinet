@@ -16,30 +16,38 @@ const groupSchema = z.object({
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const search = searchParams.get("search");
+  const page = parseInt(searchParams.get("page") || "1");
+  const limit = parseInt(searchParams.get("limit") || "20");
+  const skip = (page - 1) * limit;
 
   try {
     let whereClause = {};
 
     if (search) {
-      // Improved search with case-insensitive option
+      // Since SQLite doesn't support case-insensitive search with mode parameter,
+      // we use the `contains` operator without the mode parameter
       whereClause = {
         OR: [
           {
             name: {
               contains: search,
-              mode: "insensitive", // Add this for case-insensitive search
             },
           },
           {
             description: {
               contains: search,
-              mode: "insensitive",
             },
           },
         ],
       };
     }
 
+    // First, get the total count for pagination
+    const totalCount = await prisma.group.count({
+      where: whereClause,
+    });
+
+    // Then fetch the groups with pagination
     const groups = await prisma.group.findMany({
       where: whereClause,
       include: {
@@ -51,19 +59,32 @@ export async function GET(request) {
         },
         owner: {
           select: {
+            id: true,
             username: true,
           },
         },
       },
-      orderBy: {
-        members: {
-          _count: "desc",
+      orderBy: [
+        // Then order by member count
+        {
+          members: {
+            _count: "desc",
+          },
         },
-      },
-      take: 50,
+      ],
+      skip,
+      take: limit,
     });
 
-    return NextResponse.json({ groups });
+    return NextResponse.json({
+      groups,
+      pagination: {
+        page,
+        limit,
+        totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+      },
+    });
   } catch (error) {
     console.error("Error fetching groups:", error);
     return NextResponse.json(

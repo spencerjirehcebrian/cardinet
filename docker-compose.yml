@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  cardinet:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=file:/app/prisma/data/reddit-clone.db
+      - JWT_SECRET=your-secure-jwt-secret-change-this
+      - SEED_DATABASE=true
+      - NEXT_PUBLIC_SITE_URL=http://localhost:3000
+    ports:
+      - "3000:3000"
+    volumes:
+      - cardinet_data:/app/prisma/data
+
+volumes:
+  cardinet_data:

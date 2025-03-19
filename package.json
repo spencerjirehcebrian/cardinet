@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+"docker:build": "docker build -t cardinet .",
     "start": "next start",
     "lint": "next lint",
     "prisma:generate": "prisma generate",
