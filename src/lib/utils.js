@@ -75,3 +75,17 @@ export function getGroupImageUrl(groupId, withTimestamp = true) {
   const timestamp = withTimestamp ? `?t=${new Date().getTime()}` : "";
   return `/api/groups/${groupId}/image${timestamp}`;
 }
+
+// Mobile detection utility
+export function isMobileDevice() {
+  if (typeof window === "undefined") return false;
+  
+  // Check user agent for mobile devices
+  const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+  const mobileRegex = /android|blackberry|iphone|ipad|ipod|opera mini|iemobile|wpdesktop/i;
+  
+  // Check screen size (mobile breakpoint)
+  const screenSize = window.innerWidth <= 768;
+  
+  return mobileRegex.test(userAgent) || screenSize;
+}
