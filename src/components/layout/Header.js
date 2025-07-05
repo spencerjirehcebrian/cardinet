@@ -23,7 +23,7 @@ export default function Header() {
       <div className="container mx-auto px-4 py-2">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
+          <Link href="/" className="flex items-center space-x-2" data-tour="logo">
             <Image
               src="/logo.png"
               alt="CardiNet Logo"
@@ -37,7 +37,7 @@ export default function Header() {
           </Link>
 
           {/* Search Bar - Using our new HeaderSearch component */}
-          <div className="flex-grow max-w-xl mx-4">
+          <div className="flex-grow max-w-xl mx-4" data-tour="search">
             <HeaderSearch />
           </div>
 
@@ -96,7 +96,7 @@ export default function Header() {
                 </div>
               </>
             ) : (
-              <div className="flex space-x-2">
+              <div className="flex space-x-2" data-tour="auth-buttons">
                 <Button href="/auth/login" variant="outlined">
                   Log In
                 </Button>

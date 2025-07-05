@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* Import Shepherd.js styles */
+@import "shepherd.js/dist/css/shepherd.css";
+
+/* Import our custom onboarding tour styles */
+@import "../components/onboarding/OnboardingTour.css";
+
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-rgb: 127, 29, 29; /* Tailwind red-900 */

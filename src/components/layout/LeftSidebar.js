@@ -52,7 +52,7 @@ export default function LeftSidebar() {
   };
 
   return (
-    <div className="hidden md:block w-64 p-4 h-fit sticky top-4 text-white">
+    <div className="hidden md:block w-64 p-4 h-fit sticky top-4 text-white" data-tour="sidebar">
       <div className="space-y-4">
         {/* Main navigation */}
         <div className="space-y-1">

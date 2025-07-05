@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import Header from "@/components/layout/Header";
 import LeftSidebar from "@/components/layout/LeftSidebar";
+import OnboardingTour from "@/components/onboarding/OnboardingTour";
 
 export default function ClientLayoutWrapper({ children }) {
   const pathname = usePathname();
@@ -28,9 +29,11 @@ export default function ClientLayoutWrapper({ children }) {
         <div className="flex">
           <LeftSidebar />
           <div className="border-l border-black h-screen sticky top-0"></div>
-          <main className="flex-grow p-4">{children}</main>
+          <main className="flex-grow p-4" data-tour="main-content">{children}</main>
         </div>
       </div>
+      {/* Only show onboarding tour on homepage */}
+      {pathname === "/" && <OnboardingTour />}
     </>
   );
 }

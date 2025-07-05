@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-"docker:build": "docker build -t cardinet .",
+    "docker:build": "docker build -t cardinet .",
     "start": "next start",
     "lint": "next lint",
     "prisma:generate": "prisma generate",
@@ -31,6 +31,7 @@
     "react-hook-form": "^7.54.2",
     "react-icons": "^5.5.0",
     "sharp": "^0.33.5",
+    "shepherd.js": "^14.5.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {

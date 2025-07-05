@@ -1,0 +1,227 @@
+/* CardiNet Shepherd.js Tour Styles */
+
+/* Tour step container */
+.cardinet-tour-step {
+  background: white;
+  border: 2px solid #fbbf24; /* yellow-400 */
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  max-width: 400px;
+  z-index: 10000;
+}
+
+/* Tour step header */
+.cardinet-tour-step .shepherd-header {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); /* yellow gradient */
+  border-radius: 6px 6px 0 0;
+  padding: 16px 20px;
+  border-bottom: 1px solid #d97706;
+}
+
+.cardinet-tour-step .shepherd-title {
+  color: #000;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Tour step content */
+.cardinet-tour-step .shepherd-text {
+  padding: 20px;
+  color: #374151;
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Tour step footer */
+.cardinet-tour-step .shepherd-footer {
+  padding: 16px 20px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  background: #f9fafb;
+  border-radius: 0 0 6px 6px;
+}
+
+/* Button styles */
+.cardinet-tour-step .shepherd-button {
+  border: none;
+  border-radius: 6px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+}
+
+.cardinet-tour-step .shepherd-button-primary {
+  background: #dc2626; /* red-600 */
+  color: white;
+}
+
+.cardinet-tour-step .shepherd-button-primary:hover {
+  background: #b91c1c; /* red-700 */
+  transform: translateY(-1px);
+}
+
+.cardinet-tour-step .shepherd-button-secondary {
+  background: white;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+}
+
+.cardinet-tour-step .shepherd-button-secondary:hover {
+  background: #f3f4f6;
+  color: #374151;
+  border-color: #9ca3af;
+}
+
+/* Tour step arrow */
+.cardinet-tour-step .shepherd-arrow {
+  border: 8px solid transparent;
+  position: absolute;
+}
+
+.cardinet-tour-step .shepherd-arrow:before {
+  border: 8px solid transparent;
+  content: "";
+  position: absolute;
+}
+
+/* Arrow positioning for different sides */
+.cardinet-tour-step[data-popper-placement^="top"] .shepherd-arrow {
+  bottom: -8px;
+  border-top-color: #fbbf24;
+}
+
+.cardinet-tour-step[data-popper-placement^="top"] .shepherd-arrow:before {
+  bottom: 1px;
+  border-top-color: white;
+}
+
+.cardinet-tour-step[data-popper-placement^="bottom"] .shepherd-arrow {
+  top: -8px;
+  border-bottom-color: #fbbf24;
+}
+
+.cardinet-tour-step[data-popper-placement^="bottom"] .shepherd-arrow:before {
+  top: 1px;
+  border-bottom-color: white;
+}
+
+.cardinet-tour-step[data-popper-placement^="left"] .shepherd-arrow {
+  right: -8px;
+  border-left-color: #fbbf24;
+}
+
+.cardinet-tour-step[data-popper-placement^="left"] .shepherd-arrow:before {
+  right: 1px;
+  border-left-color: white;
+}
+
+.cardinet-tour-step[data-popper-placement^="right"] .shepherd-arrow {
+  left: -8px;
+  border-right-color: #fbbf24;
+}
+
+.cardinet-tour-step[data-popper-placement^="right"] .shepherd-arrow:before {
+  left: 1px;
+  border-right-color: white;
+}
+
+/* Modal overlay */
+.cardinet-shepherd .shepherd-modal-overlay-container {
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+}
+
+.cardinet-shepherd .shepherd-modal-overlay-container .shepherd-modal {
+  background: transparent;
+  border-radius: 8px;
+  box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.3); /* yellow highlight */
+  transition: all 0.3s ease;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .cardinet-tour-step {
+    max-width: 90vw;
+    margin: 0 5vw;
+  }
+  
+  .cardinet-tour-step .shepherd-text {
+    font-size: 14px;
+    padding: 16px;
+  }
+  
+  .cardinet-tour-step .shepherd-header {
+    padding: 12px 16px;
+  }
+  
+  .cardinet-tour-step .shepherd-title {
+    font-size: 16px;
+  }
+  
+  .cardinet-tour-step .shepherd-footer {
+    padding: 12px 16px;
+    flex-direction: column;
+  }
+  
+  .cardinet-tour-step .shepherd-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Animations */
+.cardinet-tour-step {
+  animation: tourStepIn 0.3s ease-out;
+}
+
+@keyframes tourStepIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .cardinet-tour-step {
+    border-width: 3px;
+    border-color: #000;
+  }
+  
+  .cardinet-tour-step .shepherd-button-primary {
+    border: 2px solid #000;
+  }
+  
+  .cardinet-tour-step .shepherd-button-secondary {
+    border: 2px solid #000;
+    background: white;
+    color: #000;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .cardinet-tour-step {
+    animation: none;
+  }
+  
+  .cardinet-tour-step .shepherd-button {
+    transition: none;
+  }
+}
