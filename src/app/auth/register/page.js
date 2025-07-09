@@ -24,9 +24,16 @@ export default function RegisterPage() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    let processedValue = value;
+    
+    // Transform spaces to underscores for username field
+    if (name === 'username') {
+      processedValue = value.replace(/\s+/g, '_');
+    }
+    
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: processedValue,
     }));
   };
 
@@ -74,7 +81,7 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      const { username, email, password, fullName, birthday, phoneNumber } =
+      const { username, email, password, birthday, phoneNumber } =
         formData;
       const result = await register(
         username,
@@ -147,7 +154,7 @@ export default function RegisterPage() {
           <div className="mb-4">
             <div className="flex items-center w-full bg-red-900 bg-opacity-90 rounded-full overflow-hidden transition-all duration-300 focus-within:shadow-md focus-within:shadow-red-800">
               <label className="text-white pl-6 py-4 whitespace-nowrap">
-                Full Name:{" "}
+                Username:{" "}
               </label>
               <input
                 type="text"
